@@ -33,8 +33,8 @@ The fastest way to get your AI resume live.
 
 ### 2. Installation
 ```bash
-git clone [https://github.com/Radical-commits/resume-bot.git](https://github.com/Radical-commits/resume-bot.git)
-cd cv-chat-app
+git clone https://github.com/Radical-commits/resume-bot.git
+cd resume-bot
 ```
 
 ### 3. Configuration
