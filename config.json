@@ -1,0 +1,41 @@
+{
+  "site": {
+    "name": "Sarah Chen",
+    "title": "Senior Product Manager",
+    "domain": "https://sarahchen.com",
+    "description": "Senior Product Manager specializing in B2C SaaS products. 8+ years of experience scaling products from 0 to millions of users.",
+    "language": "en",
+    "ogImage": "/og-image.png",
+    "favicon": "/favicon.ico"
+  },
+  "contact": {
+    "email": "sarah.chen@example.com",
+    "phone": "+1 (415) 555-0123",
+    "location": "San Francisco, CA",
+    "linkedin": "https://linkedin.com/in/sarahchen",
+    "github": "https://github.com/schen"
+  },
+  "theme": "creative",
+  "features": {
+    "enableChat": true,
+    "enableJobFit": true,
+    "enableMultilingual": true
+  },
+  "branding": {
+    "primaryColor": "#14b8a6",
+    "accentColor": "#0d9488",
+    "backgroundColor": "#0a0a0a",
+    "textColor": "#ffffff",
+    "fontFamily": "Inter, system-ui, sans-serif"
+  },
+  "languages": {
+    "default": "en",
+    "supported": ["en","de"]
+  },
+  "ai": {
+    "provider": "groq",
+    "model": "llama-3.3-70b-versatile",
+    "temperature": 0.7,
+    "maxTokens": 1024
+  }
+}

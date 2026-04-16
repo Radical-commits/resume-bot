@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    # --- CLASSIC DEPLOYMENT (NO TUNNEL) ---
+    # Uncomment the 'ports' section below if you are NOT using Cloudflare Tunnel.
+    # This will make the app accessible at http://host-ip:3001
+    
+    # ports:
+    #   - "3001:3001"
+    
+    expose:
+      - "3001"
+    networks:
+      - app-net
+
+  tunnel:
+    # --- CLOUDFLARE TUNNEL ---
+    # If you are using a hosting provider domain without a tunnel, 
+    # simply comment out the entire 'tunnel' block below.
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    command: tunnel run
+    environment:
+      - TUNNEL_TOKEN=${TUNNEL_TOKEN}
+    networks:
+      - app-net
+
+networks:
+  app-net:
+    driver: bridge
