@@ -9,7 +9,10 @@
     "build": "tsc && npm run copy-data",
     "copy-data": "mkdir -p dist/data && cp -r src/data/* dist/data/",
     "start": "node dist/index.js",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts",
+    "test": "vitest run",
+    "test:unit": "vitest run src/services/aiService.prompt.test.ts",
+    "test:integration": "vitest run src/services/aiService.guardrails.test.ts"
   },
   "keywords": [
     "express",
@@ -40,6 +43,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "@typescript-eslint/parser": "^7.0.1",
     "eslint": "^8.56.0",
-    "tsx": "^4.7.1"
+    "tsx": "^4.7.1",
+    "vitest": "^4.1.5"
   }
 }
