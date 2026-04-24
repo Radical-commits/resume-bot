@@ -11,6 +11,7 @@ import chatRoutes from './routes/chatRoutes.js'
 import resumeRoutes from './routes/resumeRoutes.js'
 import { startSessionCleanup, getSessionStats } from './services/sessionService.js'
 import { parseResume } from './services/resumeParser.js'
+import { initDatabase } from './logging/db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -159,6 +160,9 @@ async function initializeServer() {
     console.log(`Resume loaded: ${resume.contact.name}`)
     console.log(`Experience entries: ${resume.experience.length}`)
     console.log(`Skills categories: ${Object.keys(resume.skills).length}`)
+
+    // Initialize logging database
+    initDatabase()
 
     // Start session cleanup
     startSessionCleanup()

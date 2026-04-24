@@ -6,12 +6,16 @@ services:
     # --- CLASSIC DEPLOYMENT (NO TUNNEL) ---
     # Uncomment the 'ports' section below if you are NOT using Cloudflare Tunnel.
     # This will make the app accessible at http://host-ip:3001
-    
+
     # ports:
     #   - "3001:3001"
-    
+
     expose:
       - "3001"
+    volumes:
+      - logs_data:/app/logs
+    environment:
+      - LOGS_DIR=/app/logs
     networks:
       - app-net
 
@@ -30,3 +34,7 @@ services:
 networks:
   app-net:
     driver: bridge
+
+volumes:
+  logs_data:
+    driver: local

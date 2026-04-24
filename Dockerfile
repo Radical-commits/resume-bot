@@ -32,6 +32,9 @@ COPY themes/ ./themes/
 
 ENV NODE_ENV=production
 ENV PORT=3001
+ENV LOGS_DIR=/app/logs
 EXPOSE 3001
+
+RUN mkdir -p /app/logs
 
 CMD ["node", "backend/dist/index.js"]
