@@ -8,6 +8,7 @@ import { TypingIndicator } from './TypingIndicator'
 import { JobFitAssessment } from './JobFitAssessment'
 import { chatAPI } from '../../services/api'
 import { sessionService } from '../../services/session'
+import { analytics } from '../../services/analytics'
 import type { ChatMessage as ChatMessageType } from '../../types/chat'
 
 interface ChatContainerProps {
@@ -28,6 +29,7 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
   useEffect(() => {
     if (isOpen) {
       setShowJobFit(initialView === 'jobFit')
+      analytics.chatOpen()
     }
   }, [isOpen, initialView])
 
@@ -60,6 +62,7 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
     }
 
     setMessages((prev) => [...prev, userMessage])
+    analytics.messageSent()
     setIsLoading(true)
     setError(null)
 
@@ -128,7 +131,10 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
               <div className="chat-header-actions">
                 <button
                   className="chat-icon-button"
-                  onClick={() => setShowJobFit(!showJobFit)}
+                  onClick={() => {
+                    if (!showJobFit) analytics.featureButtonClick('job_fit_tab')
+                    setShowJobFit(!showJobFit)
+                  }}
                   aria-label={t('chat.jobFit.title')}
                   title={t('chat.jobFit.title')}
                 >
