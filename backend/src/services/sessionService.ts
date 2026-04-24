@@ -17,10 +17,10 @@ export function generateSessionId(): string {
 }
 
 /**
- * Create a new session
+ * Create a new session, optionally with a caller-supplied ID
  */
-export function createSession(): SessionData {
-  const sessionId = generateSessionId()
+export function createSession(id?: string): SessionData {
+  const sessionId = id || generateSessionId()
   const now = new Date()
 
   const session: SessionData = {
@@ -72,9 +72,10 @@ export function getOrCreateSession(sessionId?: string): SessionData {
     if (existingSession) {
       return existingSession
     }
+    // ID provided but not found — honour it so the client stays in sync
+    return createSession(sessionId)
   }
 
-  // Create new session if not found or not provided
   return createSession()
 }
 
