@@ -8,6 +8,8 @@ function track(eventType: string, opts: Record<string, unknown> = {}): void {
 }
 
 export const analytics = {
+  sessionStart:       ()               => track('session_start'),
+  sectionView:        (section: string)  => track('section_view', { extra: { section } }),
   chatOpen:           ()               => track('chat_open'),
   messageSent:        ()               => track('message_sent'),
   jobFitUsed:         ()               => track('job_fit_used'),

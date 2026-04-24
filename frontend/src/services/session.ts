@@ -36,6 +36,15 @@ export const sessionService = {
     }
   },
 
+  // Returns true if no session ID exists yet (first visit)
+  isNewVisitor: (): boolean => {
+    try {
+      return localStorage.getItem(SESSION_KEY) === null
+    } catch {
+      return false
+    }
+  },
+
   // Get or create a session ID
   getOrCreateSessionId: (): string => {
     let sessionId = sessionService.getSessionId()
