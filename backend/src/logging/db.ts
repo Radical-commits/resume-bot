@@ -3,6 +3,7 @@ import path from 'path'
 import fs from 'fs'
 
 let db: Database.Database
+let dbPath: string
 
 export function initDatabase(): Database.Database {
   if (db) return db
@@ -10,7 +11,7 @@ export function initDatabase(): Database.Database {
   const logsDir = process.env.LOGS_DIR || path.join(process.cwd(), 'logs')
   fs.mkdirSync(logsDir, { recursive: true })
 
-  const dbPath = path.join(logsDir, 'analytics.db')
+  dbPath = path.join(logsDir, 'analytics.db')
   db = new Database(dbPath)
 
   db.pragma('journal_mode = WAL')
@@ -57,4 +58,8 @@ export function initDatabase(): Database.Database {
 export function getDatabase(): Database.Database {
   if (!db) throw new Error('Database not initialized. Call initDatabase() first.')
   return db
+}
+
+export function getDatabasePath(): string {
+  return dbPath
 }
