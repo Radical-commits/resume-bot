@@ -33,9 +33,7 @@
       "technical": "Technical Skills",
       "productManagement": "Product Management",
       "domains": "Domain Expertise",
-      "categoryStrong": "CORE STRENGTHS",
-      "categoryModerate": "WORKING KNOWLEDGE",
-      "categoryGaps": "AREAS FOR GROWTH/GAPS"
+      "gaps": "AREAS FOR GROWTH/GAPS"
     },
     "education": {
       "title": "Education & Certifications",
@@ -112,9 +110,7 @@
       "technical": "Технические навыки",
       "productManagement": "Управление продуктом",
       "domains": "Области экспертизы",
-      "categoryStrong": "ОСНОВНЫЕ СИЛЬНЫЕ СТОРОНЫ",
-      "categoryModerate": "РАБОЧИЕ ЗНАНИЯ",
-      "categoryGaps": "ОБЛАСТИ ДЛЯ РОСТА"
+      "gaps": "ОБЛАСТИ ДЛЯ РОСТА"
     },
     "education": {
       "title": "Образование и сертификаты",
@@ -191,9 +187,7 @@
       "technical": "Habilidades técnicas",
       "productManagement": "Gestión de productos",
       "domains": "Experiencia en dominios",
-      "categoryStrong": "FORTALEZAS PRINCIPALES",
-      "categoryModerate": "CONOCIMIENTO PRÁCTICO",
-      "categoryGaps": "ÁREAS DE CRECIMIENTO"
+      "gaps": "ÁREAS DE CRECIMIENTO"
     },
     "education": {
       "title": "Educación y certificaciones",
@@ -270,9 +264,7 @@
       "technical": "Compétences techniques",
       "productManagement": "Gestion de produit",
       "domains": "Expertise de domaine",
-      "categoryStrong": "FORCES PRINCIPALES",
-      "categoryModerate": "CONNAISSANCES PRATIQUES",
-      "categoryGaps": "DOMAINES DE CROISSANCE"
+      "gaps": "DOMAINES DE CROISSANCE"
     },
     "education": {
       "title": "Formation et certifications",
@@ -349,9 +341,7 @@
       "technical": "Technische Fähigkeiten",
       "productManagement": "Produktmanagement",
       "domains": "Domänenexpertise",
-      "categoryStrong": "KERNSTÄRKEN",
-      "categoryModerate": "PRAKTISCHES WISSEN",
-      "categoryGaps": "WACHSTUMSBEREICHE"
+      "gaps": "WACHSTUMSBEREICHE"
     },
     "education": {
       "title": "Bildung und Zertifizierungen",
@@ -428,9 +418,7 @@
       "technical": "Habilidades técnicas",
       "productManagement": "Gestão de produtos",
       "domains": "Expertise de domínio",
-      "categoryStrong": "PONTOS FORTES PRINCIPAIS",
-      "categoryModerate": "CONHECIMENTO PRÁTICO",
-      "categoryGaps": "ÁREAS DE CRESCIMENTO"
+      "gaps": "ÁREAS DE CRESCIMENTO"
     },
     "education": {
       "title": "Educação e certificações",
@@ -507,9 +495,7 @@
       "technical": "技术技能",
       "productManagement": "产品管理",
       "domains": "领域专长",
-      "categoryStrong": "核心优势",
-      "categoryModerate": "实用知识",
-      "categoryGaps": "成长领域"
+      "gaps": "成长领域"
     },
     "education": {
       "title": "教育与认证",
@@ -586,9 +572,7 @@
       "technical": "技術スキル",
       "productManagement": "プロダクトマネジメント",
       "domains": "ドメイン専門知識",
-      "categoryStrong": "主な強み",
-      "categoryModerate": "実務知識",
-      "categoryGaps": "成長分野"
+      "gaps": "成長分野"
     },
     "education": {
       "title": "教育と認定",
@@ -665,9 +649,7 @@
       "technical": "기술 스킬",
       "productManagement": "제품 관리",
       "domains": "도메인 전문성",
-      "categoryStrong": "핵심 강점",
-      "categoryModerate": "실무 지식",
-      "categoryGaps": "성장 영역"
+      "gaps": "성장 영역"
     },
     "education": {
       "title": "학력 및 자격증",

@@ -9,28 +9,13 @@ import resumeJsonData from '../../../data/resume.json'
 import translationsData from '../../../data/translations.json'
 import type { Resume } from '../types/resume'
 
-// Import language-specific resume files statically for Vite bundling
-// Only import files that exist; others will be undefined
-import resumeDeData from '../../../data/resume.de.json'
-import resumeZhData from '../../../data/resume.zh.json'
-
 // Type for site configuration
 export interface SiteConfig {
   site: {
-    name: string
-    title: string
     domain: string
-    description: string
     language: string
     ogImage: string
     favicon: string
-  }
-  contact: {
-    email: string
-    phone: string
-    location: string
-    linkedin: string
-    github: string
   }
   theme: string
   features: {
@@ -64,11 +49,15 @@ export function getSiteConfig(): SiteConfig {
   return siteConfigData as SiteConfig
 }
 
-// Map of language-specific resume data
-// Vite will statically bundle these at build time
-const languageResumes: Record<string, Resume> = {
-  de: resumeDeData as Resume,
-  zh: resumeZhData as Resume,
+// Discover all data/resume.{lang}.json files at build time via Vite glob
+const resumeModules = import.meta.glob('../../../data/resume.*.json', { eager: true })
+
+const languageResumes: Record<string, Resume> = {}
+for (const [filePath, mod] of Object.entries(resumeModules)) {
+  const match = filePath.match(/resume\.([a-z-]+)\.json$/)
+  if (match) {
+    languageResumes[match[1]] = (mod as { default: Resume }).default
+  }
 }
 
 // Cache for loaded resumes

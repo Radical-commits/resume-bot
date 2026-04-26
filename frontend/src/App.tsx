@@ -59,7 +59,7 @@ function App() {
     const resume = getResumeData()
 
     // Update document title
-    const fullTitle = `${config.site.name} - ${config.site.title}`
+    const fullTitle = `${resume.personalInfo.name} - ${resume.personalInfo.title}`
     document.title = fullTitle
 
     // Update meta tags
@@ -70,7 +70,7 @@ function App() {
       }
     }
 
-    const description = resume.summary || config.site.description
+    const description = resume.summary
     const siteUrl = config.site.domain || 'https://example.com'
     const ogImageUrl = `${siteUrl}${config.site.ogImage}`
 

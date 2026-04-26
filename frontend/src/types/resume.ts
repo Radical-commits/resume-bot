@@ -13,6 +13,7 @@ export interface Resume {
 export interface PersonalInfo {
   name: string
   title: string
+  tagline?: string
   location: string
   phone: string
   email: string

@@ -78,43 +78,8 @@ function validateConfig() {
   }
 
   // Validate site configuration
-  if (checkPlaceholderValue(config.site?.name, 'name')) {
-    errors.push('Site name is still a placeholder value in config.json');
-  }
-
-  if (checkPlaceholderValue(config.site?.title, 'title')) {
-    warnings.push('Site title appears to be a placeholder value');
-  }
-
   if (checkPlaceholderValue(config.site?.domain, 'domain')) {
     warnings.push('Domain is still a placeholder value');
-  }
-
-  // Validate contact information
-  if (config.contact) {
-    if (!validateEmail(config.contact.email)) {
-      errors.push(`Invalid email format: ${config.contact.email}`);
-    } else if (checkPlaceholderValue(config.contact.email, 'email')) {
-      errors.push('Email is still a placeholder value');
-    }
-
-    if (!validateURL(config.contact.linkedin)) {
-      errors.push('Invalid LinkedIn URL');
-    } else if (checkPlaceholderValue(config.contact.linkedin, 'linkedin')) {
-      warnings.push('LinkedIn URL is still a placeholder value');
-    }
-
-    if (!validateURL(config.contact.github)) {
-      errors.push('Invalid GitHub URL');
-    } else if (checkPlaceholderValue(config.contact.github, 'github')) {
-      warnings.push('GitHub URL is still a placeholder value');
-    }
-
-    if (!validatePhone(config.contact.phone)) {
-      errors.push('Invalid phone number format');
-    } else if (checkPlaceholderValue(config.contact.phone, 'phone')) {
-      warnings.push('Phone number is still a placeholder value');
-    }
   }
 
   // Validate theme
@@ -140,6 +105,31 @@ function validateConfig() {
         errors.push('Resume name is still a placeholder value in data/resume.json');
       }
 
+      const info = resumeData.personalInfo || {};
+      if (!validateEmail(info.email)) {
+        errors.push(`Invalid email format in data/resume.json: ${info.email}`);
+      } else if (checkPlaceholderValue(info.email, 'email')) {
+        errors.push('Email is still a placeholder value in data/resume.json');
+      }
+
+      if (info.linkedin && !validateURL(info.linkedin)) {
+        errors.push('Invalid LinkedIn URL in data/resume.json');
+      } else if (checkPlaceholderValue(info.linkedin, 'linkedin')) {
+        warnings.push('LinkedIn URL is still a placeholder value in data/resume.json');
+      }
+
+      if (info.github && !validateURL(info.github)) {
+        errors.push('Invalid GitHub URL in data/resume.json');
+      } else if (checkPlaceholderValue(info.github, 'github')) {
+        warnings.push('GitHub URL is still a placeholder value in data/resume.json');
+      }
+
+      if (info.phone && !validatePhone(info.phone)) {
+        errors.push('Invalid phone number format in data/resume.json');
+      } else if (checkPlaceholderValue(info.phone, 'phone')) {
+        warnings.push('Phone number is still a placeholder value in data/resume.json');
+      }
+
       if (!resumeData.experience || resumeData.experience.length === 0) {
         warnings.push('No work experience entries found in resume data');
       }
@@ -154,6 +144,19 @@ function validateConfig() {
     } catch (e) {
       errors.push(`Failed to parse data/resume.json: ${e.message}`);
     }
+  }
+
+  // Validate that each non-default supported language has a resume file
+  if (config.features?.enableMultilingual && config.languages?.supported) {
+    const defaultLang = config.languages.default || 'en';
+    config.languages.supported
+      .filter(lang => lang !== defaultLang)
+      .forEach(lang => {
+        const langPath = path.join(process.cwd(), 'data', `resume.${lang}.json`);
+        if (!fs.existsSync(langPath)) {
+          errors.push(`Language '${lang}' is listed in config.json but data/resume.${lang}.json does not exist`);
+        }
+      });
   }
 
   // Check .env files

@@ -202,20 +202,11 @@ function generateConfigFiles(answers) {
   // Generate config.json
   const config = {
     site: {
-      name: answers.name,
-      title: `${answers.name} - ${answers.title}`,
       domain: answers.domain || 'http://localhost:5173',
       description: `Professional resume and portfolio of ${answers.name}, ${answers.title}`,
       language: 'en',
       ogImage: '/og-image.png',
       favicon: '/favicon.ico',
-    },
-    contact: {
-      email: answers.email,
-      phone: answers.phone,
-      location: answers.location,
-      linkedin: answers.linkedin,
-      github: answers.github,
     },
     theme: answers.theme,
     features: {
