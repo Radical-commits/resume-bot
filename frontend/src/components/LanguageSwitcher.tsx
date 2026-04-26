@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { Globe } from 'lucide-react'
 import { getSupportedLanguages, isFeatureEnabled } from '../config/loader'
+import { analytics } from '../services/analytics'
 
 // Language display names
 const languageNames: Record<string, string> = {
@@ -35,6 +36,7 @@ export const LanguageSwitcher = () => {
   const switchToLanguage = (lang: string) => {
     if (i18n.language !== lang) {
       i18n.changeLanguage(lang)
+      analytics.languageSwitched(lang)
     }
   }
 

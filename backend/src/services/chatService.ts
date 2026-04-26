@@ -26,13 +26,21 @@ function convertHistoryToMessages(history: ChatMessage[]): Array<{ role: 'user' 
   }))
 }
 
+export interface ChatServiceResult {
+  content: string
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number }
+  model: string
+  provider: string
+  latencyMs: number
+}
+
 /**
  * Generate a chat response using AI Service
  */
 export async function generateChatResponse(
   message: string,
   history: ChatMessage[] = []
-): Promise<string> {
+): Promise<ChatServiceResult> {
   try {
     const resumeContext = getResumeContext()
     const isRussianMessage = isRussian(message)
@@ -49,13 +57,21 @@ export async function generateChatResponse(
     ]
 
     // Call AI service (supports multiple providers)
+    const startMs = Date.now()
     const response = await aiService.chat(messages)
+    const latencyMs = Date.now() - startMs
 
     if (!response.content) {
       throw new Error('No response from AI')
     }
 
-    return response.content.trim()
+    return {
+      content: response.content.trim(),
+      usage: response.usage,
+      model: aiService.getModel(),
+      provider: aiService.getProvider(),
+      latencyMs,
+    }
 
   } catch (error) {
     console.error('Error generating chat response:', error)
@@ -70,13 +86,22 @@ export async function generateChatResponse(
   }
 }
 
+export interface AssessJobResult {
+  assessment: string
+  fitScore?: number
+  usage?: { promptTokens: number; completionTokens: number; totalTokens: number }
+  model: string
+  provider: string
+  latencyMs: number
+}
+
 /**
  * Assess job fit based on job description
  */
 export async function assessJobFit(
   jobDescription: string,
   history: ChatMessage[] = []
-): Promise<{ assessment: string; fitScore?: number }> {
+): Promise<AssessJobResult> {
   try {
     const resumeContext = getResumeContext()
     const isRussianMessage = isRussian(jobDescription)
@@ -93,20 +118,24 @@ export async function assessJobFit(
     ]
 
     // Call AI service
+    const startMs = Date.now()
     const response = await aiService.chat(messages)
+    const latencyMs = Date.now() - startMs
 
     if (!response.content) {
       throw new Error('No assessment generated')
     }
 
     const assessment = response.content.trim()
-
-    // Try to extract fit score from the assessment
     const fitScore = extractFitScore(assessment)
 
     return {
       assessment,
-      fitScore
+      fitScore,
+      usage: response.usage,
+      model: aiService.getModel(),
+      provider: aiService.getProvider(),
+      latencyMs,
     }
 
   } catch (error) {

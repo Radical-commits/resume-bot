@@ -1,6 +1,7 @@
 import { Request, Response } from 'express'
 import { generateChatResponse, assessJobFit } from '../services/chatService.js'
 import { getOrCreateSession, addMessageToSession, getSessionHistory } from '../services/sessionService.js'
+import { logAuditEntry } from '../logging/auditLogger.js'
 import type { ChatRequest, ChatResponse, AssessJobRequest, AssessJobResponse, ApiError } from '../types/index.js'
 
 /**
@@ -29,15 +30,30 @@ export const handleChat = async (req: Request, res: Response) => {
 
     // Save messages to session
     addMessageToSession(session.id, 'user', message)
-    addMessageToSession(session.id, 'assistant', reply)
+    addMessageToSession(session.id, 'assistant', reply.content)
 
     // Send response
     const response: ChatResponse = {
-      message: reply,
+      message: reply.content,
       sessionId: session.id
     }
 
     res.json(response)
+
+    // Non-blocking audit log — fires after response is sent
+    setImmediate(() => logAuditEntry({
+      ts: Date.now(),
+      sessionId: session.id,
+      eventType: 'chat',
+      provider: reply.provider,
+      model: reply.model,
+      promptTokens: reply.usage?.promptTokens,
+      completionTokens: reply.usage?.completionTokens,
+      totalTokens: reply.usage?.totalTokens,
+      latencyMs: reply.latencyMs,
+      promptExcerpt: message.substring(0, 200),
+      responseExcerpt: reply.content.substring(0, 200),
+    }))
 
   } catch (error) {
     console.error('Error in chat controller:', error)
@@ -74,20 +90,36 @@ export const handleAssessJob = async (req: Request, res: Response) => {
 
     // Generate assessment
     console.log(`[${session.id}] Assessing job fit (${jobDescription.length} chars)`)
-    const { assessment, fitScore } = await assessJobFit(jobDescription, history)
+    const reply = await assessJobFit(jobDescription, history)
 
     // Save to session
     addMessageToSession(session.id, 'user', `[Job Assessment Request]\n${jobDescription}`)
-    addMessageToSession(session.id, 'assistant', assessment)
+    addMessageToSession(session.id, 'assistant', reply.assessment)
 
     // Send response
     const response: AssessJobResponse = {
-      assessment,
-      fitScore,
+      assessment: reply.assessment,
+      fitScore: reply.fitScore,
       sessionId: session.id
     }
 
     res.json(response)
+
+    // Non-blocking audit log — fires after response is sent
+    setImmediate(() => logAuditEntry({
+      ts: Date.now(),
+      sessionId: session.id,
+      eventType: 'job_fit',
+      provider: reply.provider,
+      model: reply.model,
+      promptTokens: reply.usage?.promptTokens,
+      completionTokens: reply.usage?.completionTokens,
+      totalTokens: reply.usage?.totalTokens,
+      latencyMs: reply.latencyMs,
+      promptExcerpt: jobDescription.substring(0, 200),
+      responseExcerpt: reply.assessment.substring(0, 200),
+      fitScore: reply.fitScore,
+    }))
 
   } catch (error) {
     console.error('Error in job assessment controller:', error)

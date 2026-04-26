@@ -43,6 +43,9 @@ class AIService {
     this.initializeClient()
   }
 
+  getProvider(): string { return this.provider }
+  getModel(): string { return this.model }
+
   private initializeClient() {
     switch (this.provider) {
       case 'groq':

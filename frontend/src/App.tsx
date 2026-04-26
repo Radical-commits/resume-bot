@@ -9,6 +9,8 @@ import { Footer } from './components/Footer'
 import { ChatContainer } from './components/Chat/ChatContainer'
 import { getSiteConfig, getResumeData } from './config/loader'
 import { useTheme } from './hooks/useTheme'
+import { analytics } from './services/analytics'
+import { sessionService } from './services/session'
 
 function App() {
   const [isChatOpen, setIsChatOpen] = useState(false)
@@ -16,6 +18,40 @@ function App() {
 
   // Load and apply theme from configuration
   useTheme()
+
+  useEffect(() => {
+    if (sessionService.isNewVisitor()) {
+      sessionService.getOrCreateSessionId()
+      analytics.sessionStart()
+    } else {
+      sessionService.getOrCreateSessionId()
+    }
+  }, [])
+
+  useEffect(() => {
+    const observed = new Set<string>()
+    const sectionIds = ['about', 'experience', 'skills', 'education']
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          const id = entry.target.id
+          if (entry.isIntersecting && !observed.has(id)) {
+            observed.add(id)
+            analytics.sectionView(id)
+          }
+        })
+      },
+      { threshold: 0.3 }
+    )
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+
+    return () => observer.disconnect()
+  }, [])
 
   // Update document title and meta tags based on configuration
   useEffect(() => {

@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { motion } from 'framer-motion'
 import { Sparkles } from 'lucide-react'
+import { analytics } from '../services/analytics'
 
 interface HeaderProps {
   onOpenChat?: () => void
@@ -46,7 +47,10 @@ export const Header = ({ onOpenChat }: HeaderProps) => {
         </nav>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           {onOpenChat && (
-            <button className="btn btn-sm btn-primary" onClick={onOpenChat}>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => { analytics.featureButtonClick('header_chat'); onOpenChat() }}
+            >
               <Sparkles size={16} />
               {t('hero.ctaChat')}
             </button>

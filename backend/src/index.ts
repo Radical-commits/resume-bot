@@ -9,8 +9,11 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import chatRoutes from './routes/chatRoutes.js'
 import resumeRoutes from './routes/resumeRoutes.js'
+import analyticsRoutes from './routes/analyticsRoutes.js'
+import adminRoutes from './routes/adminRoutes.js'
 import { startSessionCleanup, getSessionStats } from './services/sessionService.js'
 import { parseResume } from './services/resumeParser.js'
+import { initDatabase } from './logging/db.js'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -91,6 +94,8 @@ app.use('/api/', limiter)
 // Routes
 app.use('/api/chat', chatRoutes)
 app.use('/api/resume', resumeRoutes)
+app.use('/api/analytics', analyticsRoutes)
+app.use('/api/admin', adminRoutes)
 
 // Health check endpoint - required by Render
 app.get('/health', (req, res) => {
@@ -159,6 +164,9 @@ async function initializeServer() {
     console.log(`Resume loaded: ${resume.contact.name}`)
     console.log(`Experience entries: ${resume.experience.length}`)
     console.log(`Skills categories: ${Object.keys(resume.skills).length}`)
+
+    // Initialize logging database
+    initDatabase()
 
     // Start session cleanup
     startSessionCleanup()

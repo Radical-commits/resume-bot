@@ -5,6 +5,7 @@ import { ArrowLeft, FileText } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
 import { chatAPI } from '../../services/api'
 import { sessionService } from '../../services/session'
+import { analytics } from '../../services/analytics'
 
 interface JobFitAssessmentProps {
   onBack: () => void
@@ -32,6 +33,7 @@ export const JobFitAssessment = ({ onBack }: JobFitAssessmentProps) => {
         language: i18n.language,
       })
       setAssessment(response.assessment)
+      analytics.jobFitUsed()
     } catch (err) {
       setError(err instanceof Error ? err.message : t('chat.error'))
     } finally {

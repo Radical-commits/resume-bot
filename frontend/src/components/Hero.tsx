@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Sparkles, Target } from 'lucide-react'
 import { getResumeData } from '../data/resume'
+import { analytics } from '../services/analytics'
 
 interface HeroProps {
   onOpenChat: () => void
@@ -40,7 +41,7 @@ export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
           <div className="hero-actions">
             <motion.button
               className="btn btn-primary"
-              onClick={onOpenJobFit}
+              onClick={() => { analytics.featureButtonClick('hero_job_fit'); onOpenJobFit() }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -49,7 +50,7 @@ export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
             </motion.button>
             <motion.button
               className="btn btn-secondary"
-              onClick={onOpenChat}
+              onClick={() => { analytics.featureButtonClick('hero_chat'); onOpenChat() }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
