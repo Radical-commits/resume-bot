@@ -15,18 +15,8 @@ const __dirname = dirname(__filename)
 // Type definitions
 export interface SiteConfig {
   site: {
-    name: string
-    title: string
     domain: string
-    description: string
     language: string
-  }
-  contact: {
-    email: string
-    phone: string
-    location: string
-    linkedin: string
-    github: string
   }
   theme: string
   features: {
@@ -81,10 +71,11 @@ export function getAIConfig() {
  * Get site information for AI prompts
  */
 export function getSiteInfo() {
+  const resume = loadResumeData()
   const config = loadConfig()
   return {
-    candidateName: config.site.name,
-    candidateTitle: config.contact.email,
+    candidateName: resume.personalInfo.name,
+    candidateTitle: resume.personalInfo.title,
     language: config.site.language
   }
 }

@@ -1,11 +1,9 @@
 import { useTranslation } from 'react-i18next'
 import { Mail, Linkedin, Github } from 'lucide-react'
 import { getResumeData } from '../data/resume'
-import { getSiteConfig } from '../config/loader'
 
 export const Footer = () => {
   const { t, i18n } = useTranslation()
-  const config = getSiteConfig()
   const resumeData = getResumeData(i18n.language)
   const currentYear = new Date().getFullYear()
 
@@ -32,7 +30,7 @@ export const Footer = () => {
       <div className="footer-container">
         <div className="footer-content">
           <h3 className="footer-title">{resumeData.personalInfo.name}</h3>
-          <p className="footer-subtitle">{config.site.title}</p>
+          <p className="footer-subtitle">{resumeData.personalInfo.title}</p>
           <div className="footer-links">
             {socialLinks.map((link, index) => {
               const Icon = link.icon

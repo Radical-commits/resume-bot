@@ -35,7 +35,9 @@ export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
           <p className="hero-title">{resumeData.personalInfo.title}</p>
 
           {/* Subtitle */}
-          <p className="hero-subtitle">{resumeData.summary}</p>
+          {resumeData.personalInfo.tagline && (
+            <p className="hero-subtitle">{resumeData.personalInfo.tagline}</p>
+          )}
 
           {/* Actions */}
           <div className="hero-actions">
