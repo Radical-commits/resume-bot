@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express'
 import fs from 'fs'
 import { getDatabase, getDatabasePath } from '../logging/db.js'
+import { getInsightsCache, shouldRegenerate, generateInsights } from '../services/insightsService.js'
 
 export function requireAdminToken(req: Request, res: Response, next: NextFunction): void {
   const adminToken = process.env.ADMIN_TOKEN
@@ -97,4 +98,67 @@ export function pruneDatabase(_req: Request, res: Response): void {
   const r2 = db.prepare('DELETE FROM ai_audit_log WHERE ts < ?').run(cutoff)
 
   res.json({ deleted: r1.changes + r2.changes })
+}
+
+export function getExchanges(req: Request, res: Response): void {
+  const db = getDatabase()
+  const page = Math.max(0, parseInt(String(req.query.page ?? '0'), 10) || 0)
+  const limit = Math.min(50, Math.max(1, parseInt(String(req.query.limit ?? '20'), 10) || 20))
+  const offset = page * limit
+
+  const total = (db.prepare(
+    `SELECT COUNT(*) AS n FROM ai_audit_log WHERE event_type = 'chat'`
+  ).get() as { n: number }).n
+
+  const rows = db.prepare(`
+    SELECT id, ts, session_id, latency_ms, prompt_excerpt, response_excerpt
+    FROM ai_audit_log
+    WHERE event_type = 'chat'
+    ORDER BY ts DESC
+    LIMIT ? OFFSET ?
+  `).all(limit, offset) as {
+    id: number
+    ts: number
+    session_id: string
+    latency_ms: number
+    prompt_excerpt: string | null
+    response_excerpt: string | null
+  }[]
+
+  const exchanges = rows.map(r => ({
+    id: r.id,
+    ts: r.ts,
+    sessionId: r.session_id,
+    latencyMs: r.latency_ms,
+    question: r.prompt_excerpt ?? '',
+    response: r.response_excerpt ?? '',
+    refused: (r.response_excerpt ?? '').startsWith("I'm only here"),
+  }))
+
+  res.json({ exchanges, total, page, limit })
+}
+
+export function getInsights(_req: Request, res: Response): void {
+  if (shouldRegenerate()) {
+    setImmediate(() => generateInsights())
+  }
+
+  const cache = getInsightsCache()
+  res.json({
+    status: cache?.status ?? 'generating',
+    generatedAt: cache?.generated_at ?? null,
+    data: cache?.payload ?? null,
+  })
+}
+
+export function refreshInsights(_req: Request, res: Response): void {
+  const db = getDatabase()
+  db.prepare(`
+    INSERT INTO insights_cache (id, generated_at, status, payload)
+    VALUES (1, ?, 'generating', NULL)
+    ON CONFLICT(id) DO UPDATE SET generated_at = excluded.generated_at, status = 'generating', payload = NULL
+  `).run(Date.now())
+
+  setImmediate(() => generateInsights())
+  res.json({ status: 'generating' })
 }

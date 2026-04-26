@@ -58,21 +58,23 @@ export function TokenUsageCard({ days, modelUsage, timeWindow }: TokenUsageCardP
 
   const topModel = modelUsage[0]
 
-  const meta = topModel ? (
-    <span className="card-meta-flex">
-      <ProviderChip name={topModel.provider} />
-      <span className="mono" style={{ fontSize: 11, color: 'var(--fg-faint)' }}>{topModel.model}</span>
-    </span>
-  ) : null
+  const totalSummary = (
+    <div className="card-summary">
+      <span className="card-summary-label">total</span>
+      <span className="card-summary-value mono">
+        {fmtTokens(totals.tokensIn + totals.tokensOut)}
+      </span>
+    </div>
+  )
 
   return (
     <section className="card">
       <header className="card-head">
         <div className="card-title-wrap">
           <h2 className="card-title">Token Usage</h2>
-          {meta}
+          <span className="card-meta">last {timeWindow === '7d' ? 7 : 30} days</span>
         </div>
-        <span className="card-meta">last {timeWindow === '7d' ? 7 : 30} days</span>
+        {totalSummary}
       </header>
       <div className="card-body">
         <div className="kpi-row">
@@ -85,6 +87,18 @@ export function TokenUsageCard({ days, modelUsage, timeWindow }: TokenUsageCardP
             <div className="kpi-label">tokens out</div>
             <div className="kpi-value mono">{fmtTokens(totals.tokensOut)}</div>
           </div>
+          {topModel && (
+            <>
+              <div className="kpi-divider" />
+              <div className="kpi kpi-model">
+                <div className="kpi-label">model</div>
+                <div className="kpi-meta-row">
+                  <ProviderChip name={topModel.provider} />
+                  <span className="mono kpi-model-name">{topModel.model}</span>
+                </div>
+              </div>
+            </>
+          )}
         </div>
         <Sparkline
           points={sparkPoints}
