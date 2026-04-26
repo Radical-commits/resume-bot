@@ -1,6 +1,6 @@
-# Logging System
+# Analytics & Admin
 
-This document covers the two logging systems built into resume-bot: an **AI audit log** that records every AI call, and a **visitor analytics log** that tracks anonymous interaction events. It explains what is stored, how to query it, and how to maintain it.
+This document covers the two data-collection systems built into resume-bot — an **AI audit log** and a **visitor analytics log** — plus the **admin console** that visualises them and the **API** that powers it. It explains what is stored, how to query it, and how to maintain it.
 
 ---
 
@@ -15,13 +15,40 @@ Both tables live in a single SQLite database at `/app/logs/analytics.db` inside 
 
 ---
 
-## Querying the Database
+## Admin Console
 
-SQLite is not installed inside the container. Use one of these two approaches:
+The admin console is the primary interface for monitoring the site. Navigate to `/admin` in a browser.
 
-### Option A — Query via host (recommended for regular use)
+**Auth:** Enter the `ADMIN_TOKEN` value from `.env` on the login screen. The token is stored in `localStorage`; revisiting `/admin` skips the login screen if the stored token is still valid.
 
-Install sqlite3 on the host machine once:
+The console is code-split into the React bundle — the admin JavaScript is only downloaded when `/admin` is first visited.
+
+### Dashboard cards
+
+| Card | What it shows |
+|---|---|
+| **Activity** | Unique sessions count, average sessions/day, daily sessions sparkline |
+| **Token Usage** | Tokens in / tokens out, provider chip + model name, daily tokens sparkline |
+| **LLM Latency** | Table: event type / avg latency / max latency / slow calls (>5 s flagged amber) |
+| **Database** | File size (MB), row counts, prunable row count, **Prune (90 d)** button |
+
+### Time range toggle
+
+The header has a **7 d / 30 d** toggle. Filtering is applied client-side against the 30-day payload returned by the API — switching does not trigger a new network request.
+
+### Refresh
+
+Manual refresh only. A spin animation plays while data loads; the header shows a last-refreshed timestamp.
+
+---
+
+## Querying the Database Directly
+
+Raw SQL access is available for ad-hoc investigation. SQLite is not installed inside the container; use one of these approaches.
+
+### Option A — Query via host (recommended)
+
+Install sqlite3 on the host once:
 ```bash
 sudo apt install sqlite3
 ```
@@ -31,7 +58,7 @@ Then query directly against the Docker volume:
 sqlite3 /var/lib/docker/volumes/cv-chat-app_logs_data/_data/analytics.db "<query>"
 ```
 
-To find the exact volume path on your system:
+To find the exact volume path:
 ```bash
 docker volume inspect logs_data
 # Look for the "Mountpoint" field
@@ -44,7 +71,7 @@ docker cp cv-chat-app-app-1:/app/logs/analytics.db ./analytics.db
 sqlite3 ./analytics.db "<query>"
 ```
 
-Useful for a one-off inspection or to open the file in a GUI tool like [DB Browser for SQLite](https://sqlitebrowser.org).
+Useful for one-off inspection or to open the file in a GUI tool like [DB Browser for SQLite](https://sqlitebrowser.org).
 
 ---
 
@@ -226,6 +253,10 @@ LIMIT 20;
 
 ## Maintenance
 
+> **Preferred method:** use the Database card in the admin console at `/admin` — it shows file size, row counts, and prunable count before you confirm, then runs both deletes in one click.
+
+The commands below are available as a fallback for headless or scripted use.
+
 ### Check database file size
 ```bash
 docker exec cv-chat-app-app-1 ls -lh /app/logs/analytics.db
@@ -275,16 +306,16 @@ Row count should be unchanged.
 
 ## Admin API
 
-`GET /api/admin/analytics/summary` returns aggregate counts without requiring direct DB access. Protected by an `ADMIN_TOKEN` Bearer token set in `.env`.
+All three endpoints require `Authorization: Bearer <ADMIN_TOKEN>`.
 
-### Request
+### `GET /api/admin/analytics/summary`
+
+Returns 30 days of aggregated data used by the admin dashboard.
 
 ```bash
 curl -H "Authorization: Bearer your-token-here" \
   https://your-domain.com/api/admin/analytics/summary
 ```
-
-### Response
 
 ```json
 {
@@ -301,23 +332,81 @@ curl -H "Authorization: Bearer your-token-here" \
       "model": "llama-3.3-70b-versatile",
       "provider": "groq",
       "requests": 1,
-      "total_tokens": 1554
+      "total_tokens": 1554,
+      "tokens_in": 1200,
+      "tokens_out": 354
     }
   ],
-  "avgLatency": [
-    { "event_type": "chat", "avg_latency_ms": 1018, "count": 1 }
+  "latency": [
+    {
+      "event_type": "chat",
+      "avg_latency_ms": 1018,
+      "max_latency_ms": 2340,
+      "count": 1,
+      "slow_count": 0
+    }
+  ],
+  "dailyTokens": [
+    { "day": "2026-04-24", "tokens_in": 1200, "tokens_out": 354, "total_tokens": 1554 }
   ]
 }
 ```
 
-### Response Fields
+| Field | Description |
+|---|---|
+| `sessionsPerDay` | Unique sessions per calendar day, last 30 days, ASC |
+| `eventCounts` | Total count of each analytics event type (all time) |
+| `modelUsage` | Per-model request count and token breakdown (prompt / completion / total) |
+| `latency` | Avg and max latency in ms per event type; `slow_count` = calls over 5 s |
+| `dailyTokens` | Daily token breakdown (prompt / completion / total), last 30 days, ASC |
+
+The 7 d / 30 d toggle in the dashboard filters `sessionsPerDay` and `dailyTokens` client-side — no separate endpoint for the shorter window.
+
+---
+
+### `GET /api/admin/db/status`
+
+Returns current database size and row counts.
+
+```bash
+curl -H "Authorization: Bearer your-token-here" \
+  https://your-domain.com/api/admin/db/status
+```
+
+```json
+{
+  "sizeMB": 0.4,
+  "analyticsEvents": 42,
+  "aiAuditLog": 17,
+  "prunable": 0
+}
+```
 
 | Field | Description |
 |---|---|
-| `sessionsPerDay` | Unique sessions per calendar day |
-| `eventCounts` | Total count of each analytics event type |
-| `modelUsage` | Per-model request count and total tokens consumed |
-| `avgLatency` | Average AI call latency in ms, grouped by event type |
+| `sizeMB` | Database file size in MB (one decimal place) |
+| `analyticsEvents` | Total row count in `analytics_events` |
+| `aiAuditLog` | Total row count in `ai_audit_log` |
+| `prunable` | Combined rows older than 90 days across both tables |
+
+---
+
+### `POST /api/admin/db/prune`
+
+Deletes all rows older than 90 days from both tables. No request body required.
+
+```bash
+curl -X POST -H "Authorization: Bearer your-token-here" \
+  https://your-domain.com/api/admin/db/prune
+```
+
+```json
+{ "deleted": 8 }
+```
+
+| Field | Description |
+|---|---|
+| `deleted` | Total rows removed across both tables |
 
 ---
 
@@ -326,3 +415,4 @@ curl -H "Authorization: Bearer your-token-here" \
 | Variable | Default (Docker) | Description |
 |---|---|---|
 | `LOGS_DIR` | `/app/logs` | Directory where `analytics.db` is written |
+| `ADMIN_TOKEN` | — | Bearer token required for all `/api/admin/*` endpoints |
