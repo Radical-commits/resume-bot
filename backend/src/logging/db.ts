@@ -49,6 +49,13 @@ export function initDatabase(): Database.Database {
     CREATE INDEX IF NOT EXISTS idx_aal_ts         ON ai_audit_log(ts);
     CREATE INDEX IF NOT EXISTS idx_aal_session    ON ai_audit_log(session_id);
     CREATE INDEX IF NOT EXISTS idx_aal_event_type ON ai_audit_log(event_type);
+
+    CREATE TABLE IF NOT EXISTS insights_cache (
+      id           INTEGER PRIMARY KEY,
+      generated_at INTEGER NOT NULL,
+      status       TEXT    NOT NULL DEFAULT 'generating',
+      payload      TEXT
+    );
   `)
 
   console.log(`Analytics database initialized at: ${dbPath}`)

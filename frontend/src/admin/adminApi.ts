@@ -79,6 +79,43 @@ export interface DbStatus {
   prunable: number
 }
 
+export interface ExchangeRow {
+  id: number
+  ts: number
+  sessionId: string
+  latencyMs: number
+  question: string
+  response: string
+  refused: boolean
+}
+
+export interface ExchangesResponse {
+  exchanges: ExchangeRow[]
+  total: number
+  page: number
+  limit: number
+}
+
+export interface InsightsTopic {
+  label: string
+  count: number
+  examples: string[]
+}
+
+export interface InsightsPayload {
+  topics: InsightsTopic[]
+  refusalRate: number
+  refusalCount: number
+  totalConversations: number
+  coverageGaps: string[]
+}
+
+export interface InsightsResponse {
+  status: 'generating' | 'ready' | 'error'
+  generatedAt: number | null
+  data: InsightsPayload | null
+}
+
 export const adminApi = {
   verifyToken: async (token: string): Promise<boolean> => {
     const res = await fetch(`${API_URL}/api/admin/analytics/summary`, {
@@ -89,4 +126,9 @@ export const adminApi = {
   getSummary: () => adminFetch<AdminSummary>('/api/admin/analytics/summary'),
   getDbStatus: () => adminFetch<DbStatus>('/api/admin/db/status'),
   pruneDatabase: () => adminFetch<{ deleted: number }>('/api/admin/db/prune', { method: 'POST' }),
+  getExchanges: (page: number, limit = 20) =>
+    adminFetch<ExchangesResponse>(`/api/admin/analytics/exchanges?page=${page}&limit=${limit}`),
+  getInsights: () => adminFetch<InsightsResponse>('/api/admin/analytics/insights'),
+  refreshInsights: () =>
+    adminFetch<{ status: string }>('/api/admin/analytics/insights/refresh', { method: 'POST' }),
 }
