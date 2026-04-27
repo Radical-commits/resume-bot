@@ -36,7 +36,7 @@ export const Skills = () => {
         const types = ['strong', 'moderate', 'strong']
 
         skillCategories.push({
-          title: formatCategoryName(key),
+          title: t(`skills.${key}`, { defaultValue: formatCategoryName(key) }),
           type: types[index % types.length],
           icon: icons[index % icons.length],
           skills: skills,

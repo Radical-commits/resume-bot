@@ -21,6 +21,7 @@ The app is containerized and designed for secure, easy deployment using **Cloudf
 - ✅ **SEO optimized** with Open Graph tags
 - ✅ **Zero-port Deployment** - Secured via Cloudflare Tunnel
 - ✅ **Easy configuration** - JSON-based, no code changes needed
+- ✅ **Admin console** - analytics dashboard, conversation log, and AI-powered visitor insights at `/admin`
 
 ## Quick Start (Docker)
 
@@ -64,7 +65,19 @@ To make the resume yours, modify the JSON files in the root directory:
    docker compose up -d --build app
    ```
 
-> For customization tips check [CUSTOMIZATION.md](./CUSTOMIZATION.md)
+> For customization tips check [CUSTOMIZATION.md](./docs/CUSTOMIZATION.md)
+
+## Admin Console
+
+Navigate to `/admin` and enter your `ADMIN_TOKEN` to access the monitoring console.
+
+| Tab | What it shows |
+|---|---|
+| **Dashboard** | Session counts, token usage, LLM latency, and database size — with a 7 d / 30 d toggle |
+| **Insights** | AI-generated topic clusters, off-topic attempt rate, and coverage gaps from the past 30 days |
+| **Visitor Questions** | Paginated log of every chat exchange with latency, session ID, and refusal flagging |
+
+The console also exposes API endpoints for programmatic access and a one-click 90-day prune button for database maintenance. See [docs/ANALYTICS.md](./docs/ANALYTICS.md) for the full reference.
 
 ## Themes
 

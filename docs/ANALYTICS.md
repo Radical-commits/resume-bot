@@ -10,6 +10,7 @@ This document covers the two data-collection systems built into resume-bot — a
 |---|---|---|
 | AI Audit Log | `ai_audit_log` | Every chat and job-fit AI call — tokens, latency, model, excerpts |
 | Visitor Analytics | `analytics_events` | Anonymous visitor interactions — chat opens, messages sent, feature usage |
+| Insights Cache | `insights_cache` | AI-generated topic clusters and coverage analysis, regenerated every 7 days |
 
 Both tables live in a single SQLite database at `/app/logs/analytics.db` inside the container, backed by a named Docker volume (`logs_data`) that persists across restarts.
 
@@ -31,6 +32,31 @@ The console is code-split into the React bundle — the admin JavaScript is only
 | **Token Usage** | Tokens in / tokens out, provider chip + model name, daily tokens sparkline |
 | **LLM Latency** | Table: event type / avg latency / max latency / slow calls (>5 s flagged amber) |
 | **Database** | File size (MB), row counts, prunable row count, **Prune (90 d)** button |
+
+### Insights tab
+
+Shows an AI-generated analysis of visitor conversations from the past 30 days. Data is cached and regenerated automatically after 7 days; a **Regenerate** button forces an immediate refresh.
+
+| Section | What it shows |
+|---|---|
+| **Topics** | AI-clustered conversation topics — label, question count, and up to 3 example questions per cluster |
+| **Off-topic Attempts** | Refusal count and share of total conversations (responses starting with "I'm only here") |
+| **Coverage Gaps** | Questions the bot couldn't answer, extracted from responses that indicated missing information |
+
+While analysis is running the tab shows a loading skeleton; it polls every 2 seconds until `status` becomes `ready` or `error`. A timestamp shows when the current snapshot was generated.
+
+### Visitor Questions tab
+
+A paginated log of individual chat exchanges — 20 per page, newest first.
+
+| Field | Description |
+|---|---|
+| Question | Visitor's message (from `prompt_excerpt`) |
+| Response | Bot's reply (from `response_excerpt`) |
+| Time | Relative timestamp (e.g. "3 hours ago") |
+| Latency | Response time in milliseconds |
+| Session | Abbreviated session ID with a colour-coded dot |
+| Refused chip | Shown when the bot declined to answer (response starts with "I'm only here") |
 
 ### Time range toggle
 
@@ -230,6 +256,31 @@ GROUP BY day
 ORDER BY day DESC;
 ```
 
+### `insights_cache`
+
+Singleton table (always one row, `id = 1`) that stores the most recent AI-generated insights.
+
+| Column | Type | Description |
+|---|---|---|
+| id | INTEGER | Always 1 |
+| generated_at | INTEGER | Unix epoch milliseconds when generation started |
+| status | TEXT | `generating`, `ready`, or `error` |
+| payload | TEXT | JSON-encoded insights (null while generating) |
+
+The payload JSON shape:
+
+```json
+{
+  "topics": [{ "label": "React / Frontend", "count": 12, "examples": ["Do you know Next.js?"] }],
+  "refusalRate": 0.05,
+  "refusalCount": 3,
+  "totalConversations": 60,
+  "coverageGaps": ["What is your expected salary?"]
+}
+```
+
+Stale threshold: 7 days. The row is upserted on every generation cycle; there is always at most one row.
+
 ---
 
 ## Cross-Table Queries
@@ -302,11 +353,15 @@ sqlite3 /var/lib/docker/volumes/cv-chat-app_logs_data/_data/analytics.db \
 ```
 Row count should be unchanged.
 
+### Insights cache
+
+`insights_cache` is not pruned by the **Prune (90 d)** button or the `/api/admin/db/prune` endpoint — it contains at most one row and is managed automatically. To force a fresh analysis, use the **Regenerate** button on the Insights tab or call `POST /api/admin/analytics/insights/refresh`.
+
 ---
 
 ## Admin API
 
-All three endpoints require `Authorization: Bearer <ADMIN_TOKEN>`.
+All endpoints require `Authorization: Bearer <ADMIN_TOKEN>`.
 
 ### `GET /api/admin/analytics/summary`
 
@@ -407,6 +462,106 @@ curl -X POST -H "Authorization: Bearer your-token-here" \
 | Field | Description |
 |---|---|
 | `deleted` | Total rows removed across both tables |
+
+---
+
+### `GET /api/admin/analytics/exchanges`
+
+Returns a paginated list of individual chat conversations drawn from `ai_audit_log`.
+
+**Query parameters:**
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | `0` | Zero-indexed page number |
+| `limit` | `20` | Items per page (max 50) |
+
+```bash
+curl -H "Authorization: Bearer your-token-here" \
+  "https://your-domain.com/api/admin/analytics/exchanges?page=0&limit=20"
+```
+
+```json
+{
+  "exchanges": [
+    {
+      "id": 17,
+      "ts": 1745530000000,
+      "sessionId": "abc123",
+      "latencyMs": 1180,
+      "question": "What frameworks do you know?",
+      "response": "I have experience with React, Node.js ...",
+      "refused": false
+    }
+  ],
+  "total": 42,
+  "page": 0,
+  "limit": 20
+}
+```
+
+| Field | Description |
+|---|---|
+| `exchanges` | Array of chat exchanges for this page, newest first |
+| `total` | Total chat rows in `ai_audit_log` |
+| `page` | Current page (0-indexed) |
+| `limit` | Page size used |
+| `refused` | `true` when the response excerpt begins with "I'm only here" |
+
+---
+
+### `GET /api/admin/analytics/insights`
+
+Returns the current insights cache. If the cache is absent or older than 7 days, background generation is triggered automatically and `status` is returned as `generating`.
+
+```bash
+curl -H "Authorization: Bearer your-token-here" \
+  https://your-domain.com/api/admin/analytics/insights
+```
+
+```json
+{
+  "status": "ready",
+  "generatedAt": 1745530000000,
+  "data": {
+    "topics": [
+      { "label": "React / Frontend", "count": 12, "examples": ["Do you know Next.js?"] }
+    ],
+    "refusalRate": 0.05,
+    "refusalCount": 3,
+    "totalConversations": 60,
+    "coverageGaps": ["What is your expected salary?"]
+  }
+}
+```
+
+| Field | Description |
+|---|---|
+| `status` | `generating` — analysis in progress; `ready` — data available; `error` — generation failed |
+| `generatedAt` | Unix epoch milliseconds of last generation attempt, or `null` |
+| `data` | Full insights payload when `status = ready`, otherwise `null` |
+| `data.topics` | 4–8 AI-clustered topic groups with label, count, and example questions |
+| `data.refusalRate` | Fraction of conversations the bot declined (0–1) |
+| `data.coverageGaps` | Questions the bot said it couldn't answer |
+
+Poll this endpoint every 2 seconds while `status = generating`.
+
+---
+
+### `POST /api/admin/analytics/insights/refresh`
+
+Forces insights regeneration regardless of cache age. Sets `status` to `generating` immediately; generation proceeds asynchronously.
+
+```bash
+curl -X POST -H "Authorization: Bearer your-token-here" \
+  https://your-domain.com/api/admin/analytics/insights/refresh
+```
+
+```json
+{ "status": "generating" }
+```
+
+After calling this endpoint, poll `GET /api/admin/analytics/insights` until `status` is no longer `generating`.
 
 ---
 
