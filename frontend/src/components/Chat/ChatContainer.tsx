@@ -17,6 +17,18 @@ interface ChatContainerProps {
   initialView?: 'chat' | 'jobFit'
 }
 
+const MIN_WIDTH = 300
+const MAX_WIDTH = 800
+const MIN_HEIGHT = 400
+
+function loadSavedSize() {
+  try {
+    const saved = localStorage.getItem('chat-panel-size')
+    if (saved) return JSON.parse(saved) as { width: number; height: number }
+  } catch {}
+  return { width: 400, height: 600 }
+}
+
 export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatContainerProps) => {
   const { t, i18n } = useTranslation()
   const [messages, setMessages] = useState<ChatMessageType[]>([])
@@ -24,6 +36,64 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
   const [error, setError] = useState<string | null>(null)
   const [showJobFit, setShowJobFit] = useState(initialView === 'jobFit')
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  const [size, setSize] = useState(loadSavedSize)
+  const [isResizing, setIsResizing] = useState(false)
+  const dragRef = useRef<{
+    edge: 'top' | 'left' | 'corner'
+    startX: number
+    startY: number
+    startWidth: number
+    startHeight: number
+  } | null>(null)
+
+  const handleResizeStart = (edge: 'top' | 'left' | 'corner') => (e: React.MouseEvent) => {
+    e.preventDefault()
+    dragRef.current = {
+      edge,
+      startX: e.clientX,
+      startY: e.clientY,
+      startWidth: size.width,
+      startHeight: size.height,
+    }
+    setIsResizing(true)
+
+    const maxHeight = Math.max(MIN_HEIGHT, Math.floor(window.innerHeight * 0.9))
+
+    const onMouseMove = (ev: MouseEvent) => {
+      const drag = dragRef.current
+      if (!drag) return
+      const dx = drag.startX - ev.clientX
+      const dy = drag.startY - ev.clientY
+      setSize((prev) => {
+        const newWidth =
+          drag.edge === 'top'
+            ? prev.width
+            : Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, drag.startWidth + dx))
+        const newHeight =
+          drag.edge === 'left'
+            ? prev.height
+            : Math.min(maxHeight, Math.max(MIN_HEIGHT, drag.startHeight + dy))
+        return { width: newWidth, height: newHeight }
+      })
+    }
+
+    const onMouseUp = () => {
+      dragRef.current = null
+      setIsResizing(false)
+      setSize((current) => {
+        try {
+          localStorage.setItem('chat-panel-size', JSON.stringify(current))
+        } catch {}
+        return current
+      })
+      document.removeEventListener('mousemove', onMouseMove)
+      document.removeEventListener('mouseup', onMouseUp)
+    }
+
+    document.addEventListener('mousemove', onMouseMove)
+    document.addEventListener('mouseup', onMouseUp)
+  }
 
   // Reset to initial view when dialog opens
   useEffect(() => {
@@ -121,8 +191,12 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            transition={{ duration: 0.2 }}
+            transition={isResizing ? { duration: 0 } : { duration: 0.2 }}
+            style={{ width: size.width, height: size.height }}
           >
+            <div className="resize-handle-top" onMouseDown={handleResizeStart('top')} />
+            <div className="resize-handle-left" onMouseDown={handleResizeStart('left')} />
+            <div className="resize-handle-corner" onMouseDown={handleResizeStart('corner')} />
             <div className="chat-header">
               <div className="chat-header-content">
                 <h3 className="chat-title">{t('chat.title')}</h3>

@@ -924,9 +924,9 @@ p {
   position: fixed;
   bottom: var(--spacing-6);
   right: var(--spacing-6);
-  width: 400px;
+  min-width: 300px;
   max-width: calc(100vw - var(--spacing-8));
-  height: 600px;
+  min-height: 400px;
   max-height: calc(100vh - var(--spacing-12));
   background: var(--color-bg-secondary);
   border-radius: var(--radius-2xl);
@@ -936,6 +936,45 @@ p {
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--color-border);
+}
+
+.resize-handle-top,
+.resize-handle-left,
+.resize-handle-corner {
+  position: absolute;
+  z-index: 10;
+}
+
+.resize-handle-top {
+  top: 0;
+  left: 12px;
+  right: 12px;
+  height: 6px;
+  cursor: ns-resize;
+}
+
+.resize-handle-left {
+  left: 0;
+  top: 12px;
+  bottom: 12px;
+  width: 6px;
+  cursor: ew-resize;
+}
+
+.resize-handle-corner {
+  top: 0;
+  left: 0;
+  width: 14px;
+  height: 14px;
+  cursor: nwse-resize;
+}
+
+@media (max-width: 768px) {
+  .resize-handle-top,
+  .resize-handle-left,
+  .resize-handle-corner {
+    display: none;
+  }
 }
 
 .chat-header {
@@ -1408,8 +1447,8 @@ p {
   }
 
   .chat-panel {
-    width: 100%;
-    height: 100%;
+    width: 100% !important;
+    height: 100% !important;
     max-width: 100%;
     max-height: 100%;
     bottom: 0;
