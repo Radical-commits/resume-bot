@@ -936,6 +936,8 @@ p {
   flex-direction: column;
   overflow: hidden;
   border: 1px solid var(--color-border);
+  --chat-font-size: 0.875rem;
+  font-size: var(--chat-font-size);
 }
 
 .resize-handle-top,
@@ -1016,14 +1018,43 @@ p {
   color: var(--color-primary);
 }
 
+.chat-font-button {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  height: 32px;
+  padding: 0 var(--spacing-2);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  font-family: var(--font-sans);
+  line-height: 1;
+}
+
+.chat-font-button:hover:not(:disabled) {
+  background: rgba(94, 234, 212, 0.1);
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.chat-font-button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
 .chat-title {
-  font-size: 1.125rem;
+  font-size: 1.286em;
   font-weight: 600;
   margin-bottom: var(--spacing-1);
 }
 
 .chat-subtitle {
-  font-size: 0.875rem;
+  font-size: 1em;
   opacity: 0.9;
 }
 
@@ -1090,7 +1121,7 @@ p {
 
 /* Markdown formatting styles */
 .chat-message-content .markdown-heading {
-  font-size: 1.25rem;
+  font-size: 1.43em;
   font-weight: 700;
   margin: 1rem 0 0.5rem 0;
   color: var(--color-primary);
@@ -1102,7 +1133,7 @@ p {
 }
 
 .chat-message-content .markdown-subheading {
-  font-size: 1.125rem;
+  font-size: 1.286em;
   font-weight: 600;
   margin: 0.75rem 0 0.5rem 0;
   color: var(--color-primary);
@@ -1174,7 +1205,7 @@ p {
   padding: var(--spacing-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  font-size: 0.875rem;
+  font-size: 1em;
   font-family: var(--font-sans);
   outline: none;
   transition: border-color var(--transition-base);
@@ -1229,7 +1260,7 @@ p {
   border: 1px solid var(--color-error);
   border-radius: var(--radius-lg);
   color: var(--color-error);
-  font-size: 0.875rem;
+  font-size: 1em;
   text-align: center;
 }
 
@@ -1271,14 +1302,14 @@ p {
 }
 
 .job-fit-title {
-  font-size: 1.125rem;
+  font-size: 1.286em;
   font-weight: 600;
   margin-bottom: var(--spacing-1);
   color: var(--color-text-primary);
 }
 
 .job-fit-subtitle {
-  font-size: 0.875rem;
+  font-size: 1em;
   color: var(--color-text-secondary);
 }
 
@@ -1294,7 +1325,7 @@ p {
   padding: var(--spacing-3);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  font-size: 0.875rem;
+  font-size: 1em;
   font-family: var(--font-sans);
   resize: vertical;
   min-height: 150px;
@@ -1315,7 +1346,7 @@ p {
   border: 1px solid var(--color-error);
   border-radius: var(--radius-lg);
   color: var(--color-error);
-  font-size: 0.875rem;
+  font-size: 1em;
 }
 
 .job-fit-result {
@@ -1333,7 +1364,7 @@ p {
 
 /* Apply markdown styles to job fit assessment */
 .job-fit-assessment .markdown-heading {
-  font-size: 1.25rem;
+  font-size: 1.43em;
   font-weight: 700;
   margin: 1rem 0 0.5rem 0;
   color: var(--color-primary);
@@ -1345,7 +1376,7 @@ p {
 }
 
 .job-fit-assessment .markdown-subheading {
-  font-size: 1.125rem;
+  font-size: 1.286em;
   font-weight: 600;
   margin: 0.75rem 0 0.5rem 0;
   color: var(--color-primary);

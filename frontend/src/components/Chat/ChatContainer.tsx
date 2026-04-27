@@ -21,12 +21,28 @@ const MIN_WIDTH = 300
 const MAX_WIDTH = 800
 const MIN_HEIGHT = 400
 
+const FONT_SIZES = ['sm', 'md', 'lg'] as const
+type FontSize = (typeof FONT_SIZES)[number]
+const FONT_SIZE_VALUES: Record<FontSize, string> = {
+  sm: '0.75rem',
+  md: '0.875rem',
+  lg: '1rem',
+}
+
 function loadSavedSize() {
   try {
     const saved = localStorage.getItem('chat-panel-size')
     if (saved) return JSON.parse(saved) as { width: number; height: number }
   } catch {}
   return { width: 400, height: 600 }
+}
+
+function loadSavedFontSize(): FontSize {
+  try {
+    const saved = localStorage.getItem('chat-font-size')
+    if (saved && FONT_SIZES.includes(saved as FontSize)) return saved as FontSize
+  } catch {}
+  return 'md'
 }
 
 export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatContainerProps) => {
@@ -39,6 +55,17 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
 
   const [size, setSize] = useState(loadSavedSize)
   const [isResizing, setIsResizing] = useState(false)
+  const [fontSize, setFontSize] = useState<FontSize>(loadSavedFontSize)
+
+  const changeFontSize = (dir: 'inc' | 'dec') => {
+    setFontSize((prev) => {
+      const idx = FONT_SIZES.indexOf(prev)
+      const next = FONT_SIZES[dir === 'inc' ? idx + 1 : idx - 1]
+      if (!next) return prev
+      try { localStorage.setItem('chat-font-size', next) } catch {}
+      return next
+    })
+  }
   const dragRef = useRef<{
     edge: 'top' | 'left' | 'corner'
     startX: number
@@ -192,7 +219,7 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={isResizing ? { duration: 0 } : { duration: 0.2 }}
-            style={{ width: size.width, height: size.height }}
+            style={{ width: size.width, height: size.height, '--chat-font-size': FONT_SIZE_VALUES[fontSize] } as React.CSSProperties}
           >
             <div className="resize-handle-top" onMouseDown={handleResizeStart('top')} />
             <div className="resize-handle-left" onMouseDown={handleResizeStart('left')} />
@@ -203,6 +230,24 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
                 <p className="chat-subtitle">{t('chat.subtitle')}</p>
               </div>
               <div className="chat-header-actions">
+                <button
+                  className="chat-font-button"
+                  onClick={() => changeFontSize('dec')}
+                  disabled={fontSize === 'sm'}
+                  aria-label="Decrease font size"
+                  title="Decrease font size"
+                >
+                  A-
+                </button>
+                <button
+                  className="chat-font-button"
+                  onClick={() => changeFontSize('inc')}
+                  disabled={fontSize === 'lg'}
+                  aria-label="Increase font size"
+                  title="Increase font size"
+                >
+                  A+
+                </button>
                 <button
                   className="chat-icon-button"
                   onClick={() => {
