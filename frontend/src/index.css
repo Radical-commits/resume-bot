@@ -666,7 +666,7 @@ p {
 }
 
 .skill-card-moderate .skill-list-icon {
-  color: var(--color-text-tertiary);
+  color: var(--color-success);
 }
 
 /* Skill Card - Gaps (Amber-tinted) */
@@ -730,11 +730,14 @@ p {
 
 .education-icon {
   color: var(--color-primary);
+  display: flex;
+  flex-shrink: 0;
 }
 
 .education-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
+  margin: 0;
 }
 
 .education-list {
