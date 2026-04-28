@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
-import { Check, Circle } from 'lucide-react'
+import { Check } from 'lucide-react'
 import { getResumeData } from '../data/resume'
 
 export const Skills = () => {
@@ -27,18 +27,15 @@ export const Skills = () => {
   if (resumeData.skills && typeof resumeData.skills === 'object') {
     const skillKeys = Object.keys(resumeData.skills)
 
-    skillKeys.forEach((key, index) => {
+    skillKeys.forEach((key) => {
       const skills = (resumeData.skills as any)[key]
 
       if (Array.isArray(skills) && skills.length > 0) {
         // Alternate between icons for visual variety
-        const icons = [Check, Circle, Check]
-        const types = ['strong', 'moderate', 'strong']
-
         skillCategories.push({
           title: t(`skills.${key}`, { defaultValue: formatCategoryName(key) }),
-          type: types[index % types.length],
-          icon: icons[index % icons.length],
+          type: 'strong',
+          icon: Check,
           skills: skills,
         })
       }

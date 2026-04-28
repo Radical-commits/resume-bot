@@ -102,8 +102,8 @@ function App() {
   }
 
   return (
-    <div className="app">
-      <Header onOpenChat={openChat} />
+    <div className={`app${isChatOpen ? ' chat-open' : ''}`}>
+      <Header />
       <main>
         <Hero onOpenChat={openChat} onOpenJobFit={openJobFit} />
         <About />

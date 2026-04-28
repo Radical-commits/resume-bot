@@ -227,7 +227,6 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
             <div className="chat-header">
               <div className="chat-header-content">
                 <h3 className="chat-title">{t('chat.title')}</h3>
-                <p className="chat-subtitle">{t('chat.subtitle')}</p>
               </div>
               <div className="chat-header-actions">
                 <button

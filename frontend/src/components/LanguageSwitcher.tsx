@@ -54,9 +54,10 @@ export const LanguageSwitcher = () => {
     <div className="language-switcher">
       <Globe size={18} />
       {supportedLanguages.map((lang, index) => (
-        <span key={lang}>
-          {index > 0 && <span className="language-separator">|</span>}
+        <>
+          {index > 0 && <span key={`sep-${lang}`} className="language-separator">|</span>}
           <button
+            key={lang}
             className={`language-option ${i18n.language === lang ? 'language-option-active' : ''}`}
             onClick={() => switchToLanguage(lang)}
             aria-label={languageLabels[lang] || `Switch to ${lang}`}
@@ -64,7 +65,7 @@ export const LanguageSwitcher = () => {
           >
             {languageNames[lang] || lang.toUpperCase()}
           </button>
-        </span>
+        </>
       ))}
     </div>
   )

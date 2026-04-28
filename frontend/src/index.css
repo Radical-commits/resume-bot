@@ -164,6 +164,11 @@ p {
   align-items: center;
 }
 
+.header-actions {
+  align-items: center;
+  gap: 1rem;
+}
+
 .nav {
   display: flex;
   gap: var(--spacing-6);
@@ -661,7 +666,7 @@ p {
 }
 
 .skill-card-moderate .skill-list-icon {
-  color: var(--color-text-tertiary);
+  color: var(--color-success);
 }
 
 /* Skill Card - Gaps (Amber-tinted) */
@@ -725,11 +730,14 @@ p {
 
 .education-icon {
   color: var(--color-primary);
+  display: flex;
+  flex-shrink: 0;
 }
 
 .education-subtitle {
   font-size: 1.25rem;
   font-weight: 600;
+  margin: 0;
 }
 
 .education-list {
@@ -1144,7 +1152,8 @@ p {
   line-height: 1.6;
 }
 
-.chat-message-content .markdown-paragraph:last-child {
+.chat-message-content .markdown-paragraph:last-child,
+.chat-message-content p:last-child {
   margin-bottom: 0;
 }
 
@@ -1430,8 +1439,19 @@ p {
 
 /* Responsive Design */
 @media (max-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+
+  .hero {
+    min-height: unset;
+    padding-top: var(--spacing-8);
+  }
+
   .hero-name {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    overflow-wrap: break-word;
+    word-break: break-word;
   }
 
   .hero-title {
@@ -1485,6 +1505,29 @@ p {
     bottom: 0;
     right: 0;
     border-radius: 0;
+  }
+
+  .chat-open .header {
+    display: none;
+  }
+
+  .chat-fab {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-actions {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+  }
+
+  .timeline-title {
+    font-size: 1.125rem;
+  }
+
+  .achievement-item {
+    font-size: 1rem;
   }
 
   .scroll-indicator {

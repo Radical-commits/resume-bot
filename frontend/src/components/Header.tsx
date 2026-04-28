@@ -1,14 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { LanguageSwitcher } from './LanguageSwitcher'
 import { motion } from 'framer-motion'
-import { Sparkles } from 'lucide-react'
-import { analytics } from '../services/analytics'
 
-interface HeaderProps {
-  onOpenChat?: () => void
-}
-
-export const Header = ({ onOpenChat }: HeaderProps) => {
+export const Header = () => {
   const { t } = useTranslation()
 
   const scrollToSection = (sectionId: string) => {
@@ -45,18 +39,7 @@ export const Header = ({ onOpenChat }: HeaderProps) => {
             </button>
           ))}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          {onOpenChat && (
-            <button
-              className="btn btn-sm btn-primary"
-              onClick={() => { analytics.featureButtonClick('header_chat'); onOpenChat() }}
-            >
-              <Sparkles size={16} />
-              {t('hero.ctaChat')}
-            </button>
-          )}
-          <LanguageSwitcher />
-        </div>
+        <LanguageSwitcher />
       </div>
     </motion.header>
   )
