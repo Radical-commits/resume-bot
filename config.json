@@ -22,7 +22,8 @@
     "default": "en",
     "supported": [
       "en",
-      "de"
+      "de",
+      "zh"
     ]
   },
   "ai": {
