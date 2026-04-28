@@ -1152,7 +1152,8 @@ p {
   line-height: 1.6;
 }
 
-.chat-message-content .markdown-paragraph:last-child {
+.chat-message-content .markdown-paragraph:last-child,
+.chat-message-content p:last-child {
   margin-bottom: 0;
 }
 
@@ -1504,6 +1505,10 @@ p {
     bottom: 0;
     right: 0;
     border-radius: 0;
+  }
+
+  .chat-open .header {
+    display: none;
   }
 
   .chat-fab {
