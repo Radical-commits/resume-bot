@@ -103,7 +103,7 @@ function App() {
 
   return (
     <div className="app">
-      <Header onOpenChat={openChat} />
+      <Header />
       <main>
         <Hero onOpenChat={openChat} onOpenJobFit={openJobFit} />
         <About />
