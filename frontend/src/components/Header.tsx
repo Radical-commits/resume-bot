@@ -45,7 +45,7 @@ export const Header = ({ onOpenChat }: HeaderProps) => {
             </button>
           ))}
         </nav>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+        <div className="header-actions" style={{ display: 'flex' }}>
           {onOpenChat && (
             <button
               className="btn btn-sm btn-primary"
