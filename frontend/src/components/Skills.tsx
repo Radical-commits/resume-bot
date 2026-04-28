@@ -27,7 +27,7 @@ export const Skills = () => {
   if (resumeData.skills && typeof resumeData.skills === 'object') {
     const skillKeys = Object.keys(resumeData.skills)
 
-    skillKeys.forEach((key, index) => {
+    skillKeys.forEach((key) => {
       const skills = (resumeData.skills as any)[key]
 
       if (Array.isArray(skills) && skills.length > 0) {
