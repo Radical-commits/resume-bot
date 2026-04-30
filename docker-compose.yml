@@ -14,6 +14,9 @@ services:
       - "3001"
     volumes:
       - logs_data:/app/logs
+      - ${DATA_DIR:-.}/data:/app/data
+      - ${DATA_DIR:-.}/config.json:/app/config.json
+      - ${DATA_DIR:-.}/themes:/app/themes
     environment:
       - LOGS_DIR=/app/logs
     networks:

@@ -26,9 +26,9 @@ RUN cd backend && npm install --omit=dev
 
 COPY --from=builder /app/backend/dist ./backend/dist
 # Next step - make the app read these from the host
-COPY config.json ./
-COPY data/ ./data/
-COPY themes/ ./themes/
+# COPY config.json ./
+# COPY data/ ./data/
+# COPY themes/ ./themes/
 
 ENV NODE_ENV=production
 ENV PORT=3001
