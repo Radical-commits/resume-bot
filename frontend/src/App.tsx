@@ -108,11 +108,13 @@ function AppInner() {
         <Education />
         <Footer />
       </main>
-      <ChatContainer
-        isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(prev => !prev)}
-        initialView={chatInitialView}
-      />
+      {data.config.features.enableChat && (
+        <ChatContainer
+          isOpen={isChatOpen}
+          onClose={() => setIsChatOpen(prev => !prev)}
+          initialView={chatInitialView}
+        />
+      )}
     </div>
   )
 }

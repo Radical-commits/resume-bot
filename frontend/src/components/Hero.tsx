@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Sparkles, Target } from 'lucide-react'
-import { useResumeData } from '../context/AppDataContext'
+import { useResumeData, useSiteConfig } from '../context/AppDataContext'
 import { analytics } from '../services/analytics'
 
 interface HeroProps {
@@ -12,6 +12,7 @@ interface HeroProps {
 export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
   const { t } = useTranslation()
   const resumeData = useResumeData()
+  const config = useSiteConfig()
 
   return (
     <section className="hero">
@@ -40,26 +41,32 @@ export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
           )}
 
           {/* Actions */}
-          <div className="hero-actions">
-            <motion.button
-              className="btn btn-primary"
-              onClick={() => { analytics.featureButtonClick('hero_job_fit'); onOpenJobFit() }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Target size={20} />
-              {t('hero.ctaJobFit')}
-            </motion.button>
-            <motion.button
-              className="btn btn-secondary"
-              onClick={() => { analytics.featureButtonClick('hero_chat'); onOpenChat() }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Sparkles size={20} />
-              {t('hero.ctaChat')}
-            </motion.button>
-          </div>
+          {(config.features.enableJobFit || config.features.enableChat) && (
+            <div className="hero-actions">
+              {config.features.enableJobFit && (
+                <motion.button
+                  className="btn btn-primary"
+                  onClick={() => { analytics.featureButtonClick('hero_job_fit'); onOpenJobFit() }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Target size={20} />
+                  {t('hero.ctaJobFit')}
+                </motion.button>
+              )}
+              {config.features.enableChat && (
+                <motion.button
+                  className="btn btn-secondary"
+                  onClick={() => { analytics.featureButtonClick('hero_chat'); onOpenChat() }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  <Sparkles size={20} />
+                  {t('hero.ctaChat')}
+                </motion.button>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Scroll Indicator */}
