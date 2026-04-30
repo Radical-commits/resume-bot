@@ -94,6 +94,8 @@ function AppInner() {
     )
   }
 
+  if (!data) return null
+
   const openChat = () => { setChatInitialView('chat'); setIsChatOpen(true) }
   const openJobFit = () => { setChatInitialView('jobFit'); setIsChatOpen(true) }
 
