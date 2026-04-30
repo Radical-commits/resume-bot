@@ -110,7 +110,7 @@ function AppInner() {
       </main>
       <ChatContainer
         isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(false)}
+        onClose={() => setIsChatOpen(prev => !prev)}
         initialView={chatInitialView}
       />
     </div>
