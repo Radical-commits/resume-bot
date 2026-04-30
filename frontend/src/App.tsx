@@ -7,17 +7,18 @@ import { Skills } from './components/Skills'
 import { Education } from './components/Education'
 import { Footer } from './components/Footer'
 import { ChatContainer } from './components/Chat/ChatContainer'
-import { getSiteConfig, getResumeData } from './config/loader'
+import { PageSkeleton } from './components/PageSkeleton'
+import { AppDataProvider, useAppData } from './context/AppDataContext'
 import { useTheme } from './hooks/useTheme'
 import { analytics } from './services/analytics'
 import { sessionService } from './services/session'
 
-function App() {
+function AppInner() {
+  const { data, isLoading, error } = useAppData()
   const [isChatOpen, setIsChatOpen] = useState(false)
   const [chatInitialView, setChatInitialView] = useState<'chat' | 'jobFit'>('chat')
 
-  // Load and apply theme from configuration
-  useTheme()
+  useTheme(data?.theme ?? null, data?.config.branding)
 
   useEffect(() => {
     if (sessionService.isNewVisitor()) {
@@ -29,6 +30,8 @@ function App() {
   }, [])
 
   useEffect(() => {
+    if (!data) return
+
     const observed = new Set<string>()
     const sectionIds = ['about', 'experience', 'skills', 'education']
 
@@ -51,55 +54,48 @@ function App() {
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [data])
 
-  // Update document title and meta tags based on configuration
   useEffect(() => {
-    const config = getSiteConfig()
-    const resume = getResumeData()
+    if (!data) return
 
-    // Update document title
+    const { resume, config } = data
     const fullTitle = `${resume.personalInfo.name} - ${resume.personalInfo.title}`
     document.title = fullTitle
 
-    // Update meta tags
     const updateMetaTag = (selector: string, content: string) => {
       const element = document.querySelector(selector)
-      if (element) {
-        element.setAttribute('content', content)
-      }
+      if (element) element.setAttribute('content', content)
     }
 
-    const description = resume.summary
     const siteUrl = config.site.domain || 'https://example.com'
     const ogImageUrl = `${siteUrl}${config.site.ogImage}`
 
-    // Primary meta tags
     updateMetaTag('meta[name="title"]', fullTitle)
-    updateMetaTag('meta[name="description"]', description)
-
-    // Open Graph tags
+    updateMetaTag('meta[name="description"]', resume.summary)
     updateMetaTag('meta[property="og:url"]', siteUrl)
     updateMetaTag('meta[property="og:title"]', fullTitle)
-    updateMetaTag('meta[property="og:description"]', description)
+    updateMetaTag('meta[property="og:description"]', resume.summary)
     updateMetaTag('meta[property="og:image"]', ogImageUrl)
-
-    // Twitter tags
     updateMetaTag('meta[property="twitter:url"]', siteUrl)
     updateMetaTag('meta[property="twitter:title"]', fullTitle)
-    updateMetaTag('meta[property="twitter:description"]', description)
+    updateMetaTag('meta[property="twitter:description"]', resume.summary)
     updateMetaTag('meta[property="twitter:image"]', ogImageUrl)
-  }, [])
+  }, [data])
 
-  const openChat = () => {
-    setChatInitialView('chat')
-    setIsChatOpen(true)
+  if (isLoading) return <PageSkeleton />
+
+  if (error) {
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', flexDirection: 'column', gap: 16 }}>
+        <p style={{ color: 'var(--color-error)' }}>Failed to load: {error}</p>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    )
   }
 
-  const openJobFit = () => {
-    setChatInitialView('jobFit')
-    setIsChatOpen(true)
-  }
+  const openChat = () => { setChatInitialView('chat'); setIsChatOpen(true) }
+  const openJobFit = () => { setChatInitialView('jobFit'); setIsChatOpen(true) }
 
   return (
     <div className={`app${isChatOpen ? ' chat-open' : ''}`}>
@@ -114,10 +110,18 @@ function App() {
       </main>
       <ChatContainer
         isOpen={isChatOpen}
-        onClose={() => setIsChatOpen(!isChatOpen)}
+        onClose={() => setIsChatOpen(false)}
         initialView={chatInitialView}
       />
     </div>
+  )
+}
+
+function App() {
+  return (
+    <AppDataProvider>
+      <AppInner />
+    </AppDataProvider>
   )
 }
 

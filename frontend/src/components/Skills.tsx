@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Check } from 'lucide-react'
-import { getResumeData } from '../data/resume'
+import { useResumeData } from '../context/AppDataContext'
 
 export const Skills = () => {
-  const { t, i18n } = useTranslation()
-  const resumeData = getResumeData(i18n.language)
+  const { t } = useTranslation()
+  const resumeData = useResumeData()
 
   // Dynamically build skill categories from resume data
   const skillCategories: Array<{

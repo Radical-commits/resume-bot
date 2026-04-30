@@ -2,11 +2,11 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { getResumeData } from '../data/resume'
+import { useResumeData } from '../context/AppDataContext'
 
 export const Experience = () => {
-  const { t, i18n } = useTranslation()
-  const resumeData = getResumeData(i18n.language)
+  const { t } = useTranslation()
+  const resumeData = useResumeData()
   const [expandedIndex, setExpandedIndex] = useState<number | null>(0)
 
   const toggleExpand = (index: number) => {

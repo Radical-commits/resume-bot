@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { Sparkles, Target } from 'lucide-react'
-import { getResumeData } from '../data/resume'
+import { useResumeData } from '../context/AppDataContext'
 import { analytics } from '../services/analytics'
 
 interface HeroProps {
@@ -10,8 +10,8 @@ interface HeroProps {
 }
 
 export const Hero = ({ onOpenChat, onOpenJobFit }: HeroProps) => {
-  const { t, i18n } = useTranslation()
-  const resumeData = getResumeData(i18n.language)
+  const { t } = useTranslation()
+  const resumeData = useResumeData()
 
   return (
     <section className="hero">

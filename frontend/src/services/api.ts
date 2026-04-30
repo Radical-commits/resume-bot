@@ -56,10 +56,20 @@ export const chatAPI = {
 }
 
 export const resumeAPI = {
-  // Get resume summary
   getSummary: async (): Promise<{ summary: string }> => {
     try {
       const response = await apiClient.get<{ summary: string }>('/api/resume/summary')
+      return response.data
+    } catch (error) {
+      return handleError(error)
+    }
+  },
+}
+
+export const appAPI = {
+  bootstrap: async (lang = 'en') => {
+    try {
+      const response = await apiClient.get(`/api/bootstrap?lang=${encodeURIComponent(lang)}`)
       return response.data
     } catch (error) {
       return handleError(error)
