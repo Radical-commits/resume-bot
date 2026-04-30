@@ -6,6 +6,7 @@ import { ChatMessage } from './ChatMessage'
 import { ChatInput } from './ChatInput'
 import { TypingIndicator } from './TypingIndicator'
 import { JobFitAssessment } from './JobFitAssessment'
+import { useSiteConfig } from '../../context/AppDataContext'
 import { chatAPI } from '../../services/api'
 import { sessionService } from '../../services/session'
 import { analytics } from '../../services/analytics'
@@ -47,6 +48,7 @@ function loadSavedFontSize(): FontSize {
 
 export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatContainerProps) => {
   const { t, i18n } = useTranslation()
+  const config = useSiteConfig()
   const [messages, setMessages] = useState<ChatMessageType[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -247,17 +249,19 @@ export const ChatContainer = ({ isOpen, onClose, initialView = 'chat' }: ChatCon
                 >
                   A+
                 </button>
-                <button
-                  className="chat-icon-button"
-                  onClick={() => {
-                    if (!showJobFit) analytics.featureButtonClick('job_fit_tab')
-                    setShowJobFit(!showJobFit)
-                  }}
-                  aria-label={t('chat.jobFit.title')}
-                  title={t('chat.jobFit.title')}
-                >
-                  <Briefcase size={20} />
-                </button>
+                {config.features.enableJobFit && (
+                  <button
+                    className="chat-icon-button"
+                    onClick={() => {
+                      if (!showJobFit) analytics.featureButtonClick('job_fit_tab')
+                      setShowJobFit(!showJobFit)
+                    }}
+                    aria-label={t('chat.jobFit.title')}
+                    title={t('chat.jobFit.title')}
+                  >
+                    <Briefcase size={20} />
+                  </button>
+                )}
                 <button
                   className="chat-icon-button"
                   onClick={onClose}
