@@ -11,6 +11,7 @@ permissions:
 
 env:
   IMAGE_NAME: ghcr.io/radical-commits/resume-bot
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 
 jobs:
@@ -32,9 +33,11 @@ jobs:
         run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
 
       - name: Build image
-        run: 
+        run: |
+          docker build -t $IMAGE_NAME:latest .
           docker build -t $IMAGE_NAME:dev-$SHORT_SHA .
 
       - name: Push image
         run: |
+          docker push $IMAGE_NAME:latest
           docker push $IMAGE_NAME:dev-$SHORT_SHA
