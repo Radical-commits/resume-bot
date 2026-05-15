@@ -9,6 +9,10 @@ permissions:
   contents: read
   packages: write
 
+env:
+  IMAGE_NAME: ghcr.io/radical-commits/resume-bot
+
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -24,10 +28,14 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - 
+      - name: Set short SHA
+        run: echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
       - name: Build image
         run: 
-          docker build -t ghcr.io/${{ github.repository }}:dev-${{ github.sha }} .
+          docker build -t $IMAGE_NAME:dev-$SHORT_SHA .
 
       - name: Push image
         run: |
-          docker push ghcr.io/${{ github.repository }}:dev-${{ github.sha }}
+          docker push $IMAGE_NAME:dev-$SHORT_SHA
