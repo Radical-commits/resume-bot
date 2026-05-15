@@ -1,6 +1,7 @@
 services:
   app:
-    build: .
+    image: ghcr.io/radical-commits/resume-bot:latest
+    # build: .   # uncomment to build from source
     restart: unless-stopped
     env_file: .env
     # --- CLASSIC DEPLOYMENT (NO TUNNEL) ---

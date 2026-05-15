@@ -25,20 +25,21 @@ The app is containerized and designed for secure, easy deployment using **Cloudf
 
 ## Quick Start (Docker)
 
-The fastest way to get your AI resume live.
+The fastest way to get your AI resume live. No build step — the app runs from a pre-built image published to GitHub Container Registry.
 
 ### 1. Prerequisites
 - **Docker & Docker Compose** installed.
 - **Cloudflare Tunnel Token**: Created in your [Cloudflare Zero Trust dashboard](https://one.dash.cloudflare.com/).
 - **AI API Key**: (e.g., from [Groq](https://console.groq.com) or [OpenAI](https://platform.openai.com)).
 
-### 2. Installation
+### 2. Clone the repository
 ```bash
 git clone https://github.com/Radical-commits/resume-bot.git
 cd resume-bot
 ```
+> This gives you the starter `config.json`, `data/`, and `themes/` files to customise.
 
-### 3. Configuration
+### 3. Configure
 Copy the example environment file and fill in your keys:
 ```bash
 cp .env.example .env
@@ -46,26 +47,45 @@ cp .env.example .env
 Edit `.env` and set:
 - `AI_API_KEY`: Your provider's key.
 - `TUNNEL_TOKEN`: Your Cloudflare Tunnel token.
+- `ADMIN_TOKEN`: Password for the `/admin` console.
+- `DATA_DIR` *(optional)*: Absolute path to a directory containing your `config.json`, `data/`, and `themes/`. Defaults to the repo directory if not set.
 
 ### 4. Launch
 ```bash
 docker compose up -d
 ```
-Your resume is now live on the domain you configured in Cloudflare!
-> Make sure your Public Hostname in Cloudflare points to http://app:3001
+Docker pulls the latest image from GHCR automatically. Your resume is now live on the domain you configured in Cloudflare!
+> Make sure your Public Hostname in Cloudflare points to `http://app:3001`
 
 ## Customizing Your Resume
 
-To make the resume yours, modify the JSON files in the root directory:
+Config, resume data, and themes are loaded from the host at runtime via Docker volumes — no image rebuild needed. Edit the files and restart the container to apply changes.
 
-1. **Your Data**: Edit `data/resume.json` with your experience and skills. Add/edit `data/resume.{lang}.json` files for multi-lingual presentation 
-2. **Settings**: Update `config.json` to change the site details, theme, AI model, or language.
-3. **Apply Changes**: Since data is optimized and baked into the image, rebuild the container to see updates:
+| File / Directory | Purpose |
+|---|---|
+| `config.json` | Site settings, theme selection, AI provider & model |
+| `data/resume.json` | Your resume content (English) |
+| `data/resume.{lang}.json` | Multilingual resume variants (e.g. `resume.de.json`) |
+| `data/translations.json` | UI text translations |
+| `themes/{name}.json` | Theme colour and font definitions |
+
+1. **Your data**: Edit `data/resume.json` with your experience and skills.
+2. **Settings**: Update `config.json` to change the site domain, theme, AI model, or language.
+3. **Apply changes**:
    ```bash
-   docker compose up -d --build app
+   docker compose restart app
    ```
 
-> For customization tips check [CUSTOMIZATION.md](./docs/CUSTOMIZATION.md)
+**Using files from a different directory**: Set `DATA_DIR` in your `.env` to point Docker at any folder on the host:
+```
+DATA_DIR=/path/to/my/resume-config
+```
+
+> For detailed customisation tips see [CUSTOMIZATION.md](./docs/CUSTOMIZATION.md)
+
+### Building from source
+
+If you want to modify the application code itself, replace `image:` with `build: .` in `docker-compose.yml` and run `docker compose up -d --build app`.
 
 ## Admin Console
 
