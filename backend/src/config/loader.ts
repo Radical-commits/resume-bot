@@ -103,3 +103,38 @@ export function loadResumeData(): any {
   const resumeData = fs.readFileSync(resumePath, 'utf-8')
   return JSON.parse(resumeData)
 }
+
+/**
+ * Load resume data for a specific language, falling back to English
+ */
+export function loadResumeDataByLang(lang: string): any {
+  if (!lang || lang === 'en') {
+    return loadResumeData()
+  }
+  const langPath = path.join(__dirname, `../../../data/resume.${lang}.json`)
+  if (fs.existsSync(langPath)) {
+    return JSON.parse(fs.readFileSync(langPath, 'utf-8'))
+  }
+  console.warn(`No resume found for language '${lang}', falling back to English`)
+  return loadResumeData()
+}
+
+/**
+ * Load translations for a specific language from translations.json
+ */
+export function loadTranslations(lang: string): any {
+  const translationsPath = path.join(__dirname, '../../../data/translations.json')
+  const all = JSON.parse(fs.readFileSync(translationsPath, 'utf-8'))
+  return all[lang] ?? all['en']
+}
+
+/**
+ * Load a theme file by name
+ */
+export function loadTheme(name: string): any {
+  const themePath = path.join(__dirname, `../../../themes/${name}.json`)
+  if (!fs.existsSync(themePath)) {
+    throw new Error(`Theme '${name}' not found at ${themePath}`)
+  }
+  return JSON.parse(fs.readFileSync(themePath, 'utf-8'))
+}

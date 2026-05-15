@@ -1,10 +1,10 @@
 import { useTranslation } from 'react-i18next'
 import { Mail, Linkedin, Github } from 'lucide-react'
-import { getResumeData } from '../data/resume'
+import { useResumeData } from '../context/AppDataContext'
 
 export const Footer = () => {
-  const { t, i18n } = useTranslation()
-  const resumeData = getResumeData(i18n.language)
+  const { t } = useTranslation()
+  const resumeData = useResumeData()
   const currentYear = new Date().getFullYear()
 
   const socialLinks = [

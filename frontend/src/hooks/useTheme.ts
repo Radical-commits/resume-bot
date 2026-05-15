@@ -1,110 +1,67 @@
 import { useEffect } from 'react'
-import { getSiteConfig } from '../config/loader'
+import type { SiteConfig } from '../config/loader'
 
-interface ThemeColors {
-  primary: string
-  primaryHover: string
-  accent: string
-  background: string
-  backgroundSecondary: string
-  text: string
-  textSecondary: string
-  border: string
-  success: string
-  warning: string
-  error: string
-}
-
-interface Theme {
-  name: string
-  description: string
-  colors: ThemeColors
+interface ThemeData {
+  colors: {
+    primary: string
+    primaryHover: string
+    accent: string
+    background: string
+    backgroundSecondary: string
+    text: string
+    textSecondary: string
+    border: string
+    success: string
+    warning: string
+    error: string
+  }
   fonts: {
     heading: string
     body: string
     mono: string
-  }
-  spacing: {
-    containerMaxWidth: string
-    sectionPadding: string
-    cardPadding: string
   }
   borderRadius: {
     small: string
     medium: string
     large: string
   }
-  animations: {
-    transitionSpeed: string
-    hoverScale: string
-  }
 }
 
-/**
- * Hook to load and apply theme from configuration
- */
-export const useTheme = () => {
+export const useTheme = (themeData: Record<string, any> | null, branding?: SiteConfig['branding']) => {
   useEffect(() => {
-    const loadTheme = async () => {
-      try {
-        const config = getSiteConfig()
-        const themeName = config.theme || 'professional'
+    if (!themeData) return
 
-        // Dynamically import theme file
-        const theme = await import(`../../../themes/${themeName}.json`) as { default: Theme }
-        const themeData = theme.default
+    const theme = themeData as ThemeData
+    const root = document.documentElement
 
-        // Apply theme colors as CSS variables
-        const root = document.documentElement
-        root.style.setProperty('--color-primary', themeData.colors.primary)
-        root.style.setProperty('--color-primary-dark', themeData.colors.primaryHover)
-        root.style.setProperty('--color-primary-light', themeData.colors.accent)
-        root.style.setProperty('--color-bg-primary', themeData.colors.background)
-        root.style.setProperty('--color-bg-secondary', themeData.colors.backgroundSecondary)
-        root.style.setProperty('--color-text-primary', themeData.colors.text)
-        root.style.setProperty('--color-text-secondary', themeData.colors.textSecondary)
-        root.style.setProperty('--color-text-tertiary', themeData.colors.textSecondary)
-        root.style.setProperty('--color-border', themeData.colors.border)
-        root.style.setProperty('--color-success', themeData.colors.success)
-        root.style.setProperty('--color-warning', themeData.colors.warning)
-        root.style.setProperty('--color-error', themeData.colors.error)
+    root.style.setProperty('--color-primary', theme.colors.primary)
+    root.style.setProperty('--color-primary-dark', theme.colors.primaryHover)
+    root.style.setProperty('--color-primary-light', theme.colors.accent)
+    root.style.setProperty('--color-bg-primary', theme.colors.background)
+    root.style.setProperty('--color-bg-secondary', theme.colors.backgroundSecondary)
+    root.style.setProperty('--color-text-primary', theme.colors.text)
+    root.style.setProperty('--color-text-secondary', theme.colors.textSecondary)
+    root.style.setProperty('--color-text-tertiary', theme.colors.textSecondary)
+    root.style.setProperty('--color-border', theme.colors.border)
+    root.style.setProperty('--color-success', theme.colors.success)
+    root.style.setProperty('--color-warning', theme.colors.warning)
+    root.style.setProperty('--color-error', theme.colors.error)
+    root.style.setProperty('--font-serif', theme.fonts.heading)
+    root.style.setProperty('--font-sans', theme.fonts.body)
+    root.style.setProperty('--font-mono', theme.fonts.mono)
+    root.style.setProperty('--radius-base', theme.borderRadius.small)
+    root.style.setProperty('--radius-md', theme.borderRadius.medium)
+    root.style.setProperty('--radius-lg', theme.borderRadius.large)
 
-        // Apply fonts
-        root.style.setProperty('--font-serif', themeData.fonts.heading)
-        root.style.setProperty('--font-sans', themeData.fonts.body)
-        root.style.setProperty('--font-mono', themeData.fonts.mono)
-
-        // Apply border radius
-        root.style.setProperty('--radius-base', themeData.borderRadius.small)
-        root.style.setProperty('--radius-md', themeData.borderRadius.medium)
-        root.style.setProperty('--radius-lg', themeData.borderRadius.large)
-
-        // Apply branding overrides from config if present
-        if (config.branding) {
-          if (config.branding.primaryColor) {
-            root.style.setProperty('--color-primary', config.branding.primaryColor)
-          }
-          if (config.branding.accentColor) {
-            root.style.setProperty('--color-primary-dark', config.branding.accentColor)
-            root.style.setProperty('--color-primary-light', config.branding.accentColor)
-          }
-          if (config.branding.backgroundColor) {
-            root.style.setProperty('--color-bg-primary', config.branding.backgroundColor)
-          }
-          if (config.branding.textColor) {
-            root.style.setProperty('--color-text-primary', config.branding.textColor)
-          }
-          if (config.branding.fontFamily) {
-            root.style.setProperty('--font-sans', config.branding.fontFamily)
-          }
-        }
-
-        console.log(`✓ Loaded theme: ${themeData.name}`)
-      } catch (error) {
-        console.warn('Failed to load theme, using defaults:', error)
+    if (branding) {
+      if (branding.primaryColor) root.style.setProperty('--color-primary', branding.primaryColor)
+      if (branding.accentColor) {
+        root.style.setProperty('--color-primary-dark', branding.accentColor)
+        root.style.setProperty('--color-primary-light', branding.accentColor)
       }
+      if (branding.backgroundColor) root.style.setProperty('--color-bg-primary', branding.backgroundColor)
+      if (branding.textColor) root.style.setProperty('--color-text-primary', branding.textColor)
+      if (branding.fontFamily) root.style.setProperty('--font-sans', branding.fontFamily)
     }
-
-    loadTheme()
-  }, [])
+  }, [themeData, branding])
 }

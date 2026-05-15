@@ -1,11 +1,11 @@
 import { useTranslation } from 'react-i18next'
 import { motion } from 'framer-motion'
 import { CheckCircle } from 'lucide-react'
-import { getResumeData } from '../data/resume'
+import { useResumeData } from '../context/AppDataContext'
 
 export const About = () => {
-  const { t, i18n } = useTranslation()
-  const resumeData = getResumeData(i18n.language)
+  const { t } = useTranslation()
+  const resumeData = useResumeData()
 
   return (
     <section id="about" className="section">

@@ -1,6 +1,7 @@
 services:
   app:
-    build: .
+    image: ghcr.io/radical-commits/resume-bot:latest
+    # build: .   # uncomment to build from source
     restart: unless-stopped
     env_file: .env
     # --- CLASSIC DEPLOYMENT (NO TUNNEL) ---
@@ -14,6 +15,9 @@ services:
       - "3001"
     volumes:
       - logs_data:/app/logs
+      - ${DATA_DIR:-.}/data:/app/data
+      - ${DATA_DIR:-.}/config.json:/app/config.json
+      - ${DATA_DIR:-.}/themes:/app/themes
     environment:
       - LOGS_DIR=/app/logs
     networks:

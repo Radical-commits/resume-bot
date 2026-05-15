@@ -11,6 +11,7 @@ import chatRoutes from './routes/chatRoutes.js'
 import resumeRoutes from './routes/resumeRoutes.js'
 import analyticsRoutes from './routes/analyticsRoutes.js'
 import adminRoutes from './routes/adminRoutes.js'
+import bootstrapRoutes from './routes/bootstrapRoutes.js'
 import { startSessionCleanup, getSessionStats } from './services/sessionService.js'
 import { parseResume } from './services/resumeParser.js'
 import { initDatabase } from './logging/db.js'
@@ -92,6 +93,7 @@ app.use('/api/', limiter)
 
 
 // Routes
+app.use('/api/bootstrap', bootstrapRoutes)
 app.use('/api/chat', chatRoutes)
 app.use('/api/resume', resumeRoutes)
 app.use('/api/analytics', analyticsRoutes)
